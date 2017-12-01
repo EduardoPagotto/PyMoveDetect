@@ -18,6 +18,7 @@ import logging
 import logging.handlers
 
 import hashlib
+import json
 
 # Adicionar com o comando crontab -e
 # */1  *  *  *  * /home/desenv/Projetos/PyMoveDetect/send_ip_email.py
@@ -46,6 +47,7 @@ def gera_dados_ip():
     for linha in linhas:
         tamanho_linha = len(linha)
         inicio = linha.find('default ', 0, tamanho_linha)
+        linha = linha.replace('  ', ' ')
         itens = linha.split(' ')
         if inicio != -1:
             #defaul Route
@@ -99,14 +101,20 @@ def verifica_ip_igual(dados_atuais, arquivo_verificador):
 
 if __name__ == '__main__':
     try:
+
+        elemento = None #
+        #with open("/home/desenv/Projetos/PyMoveDetect/dados.json", 'r') as fin:
+        with open("dados.json", 'r') as fin:
+            elemento = json.load(fin)
+
         #Dados Device
-        id_device = '0000001'
+        id_device = elemento['device']
 
         #Dados Email logon
-        gmail_dados_usuario = ('locutusofborgs666@gmail.com', 'XXXXX')
+        gmail_dados_usuario = (elemento['usuario'], elemento['senha'])
 
         #destino
-        to = 'locutusofborgs666@gmail.com'
+        to = elemento['destino']
 
         #adiquire dados de conexao
         lista_ips_txt = gera_dados_ip()
