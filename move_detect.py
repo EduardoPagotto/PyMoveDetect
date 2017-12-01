@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Created on 20171012
-Update on 20171018
+Update on 20171130
 @author: Eduardo Pagotto
 '''
 
@@ -426,7 +426,7 @@ if __name__ == '__main__':
         try:
             
             print("Inicializando Video ....")
-            vs = FileVideoStream('/home/locutus/Projetos/PiscaFaixa/videos/VID_20171021_144029337.mp4',
+            vs = FileVideoStream('/home/desenv/Projetos/PyMoveDetect/video/VID_20171021_144029337.mp4',
                                   CAMERA_WIDTH,
                                   CAMERA_HEIGHT)
 

@@ -20,7 +20,7 @@ import logging.handlers
 import hashlib
 
 # Adicionar com o comando crontab -e
-# */5  *  *  *  * /home/locutus/Projetos/SendIP/envioemail.py
+# */1  *  *  *  * /home/desenv/Projetos/PyMoveDetect/send_ip_email.py
 
 log = logging.getLogger('SendIP')
 log.setLevel(logging.DEBUG)
@@ -103,7 +103,7 @@ if __name__ == '__main__':
         id_device = '0000001'
 
         #Dados Email logon
-        gmail_dados_usuario = ('zzzzzz@gmail.com', 'xxxxxxx')
+        gmail_dados_usuario = ('locutusofborgs666@gmail.com', 'XXXXX')
 
         #destino
         to = 'locutusofborgs666@gmail.com'
