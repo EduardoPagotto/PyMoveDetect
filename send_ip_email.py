@@ -103,8 +103,8 @@ if __name__ == '__main__':
     try:
 
         elemento = None #
-        #with open("/home/desenv/Projetos/PyMoveDetect/dados.json", 'r') as fin:
-        with open("dados.json", 'r') as fin:
+        with open("/home/desenv/Projetos/PyMoveDetect/dados.json", 'r') as fin:
+        #with open("dados.json", 'r') as fin:
             elemento = json.load(fin)
 
         #Dados Device
