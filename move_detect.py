@@ -11,24 +11,61 @@ Update on 20171130
 #pylint: disable=R0913
 
 import os
-
 import datetime
 
-from config import *
+#from config import *
 
 import logging
-
 import cv2
 import time
 #from threading import Thread
 import threading
 
-x_center = CAMERA_WIDTH/2
-y_center = CAMERA_HEIGHT/2
-x_max = CAMERA_HEIGHT
-y_max = CAMERA_WIDTH
-x_buf = CAMERA_WIDTH/10
-y_buf = CAMERA_HEIGHT/10
+class canvas_img(object):
+
+    CAMERA_WIDTH = 352    # default = 320 PiCamera image width can be greater if quad core RPI
+    CAMERA_HEIGHT = 288   # default = 240 PiCamera image height
+    CAMERA_HFLIP = False  # True=flip camera image horizontally
+    CAMERA_VFLIP = False  # True=flip camera image vertically
+    CAMERA_ROTATION = 0   # Rotate camera image valid values 0, 90, 180, 270
+    CAMERA_FRAMERATE = 25 # default = 25 lower for USB Web Cam. Try different settings
+
+    def __init__(self):
+
+        self.x_center = CAMERA_WIDTH/2
+        self.y_center = CAMERA_HEIGHT/2
+        self.x_max = CAMERA_HEIGHT
+        self.y_max = CAMERA_WIDTH
+        self.x_buf = CAMERA_WIDTH/10
+        self.y_buf = CAMERA_HEIGHT/10
+
+    def crossed_x_centerline(self, enter, leave, movelist):
+        xbuf = 20  # buffer space on either side of x_center to avoid extra counts
+        # Check if over center line then count
+        if len(movelist) > 1:  # Are there two entries
+            if ( movelist[0] <= self.x_center
+                    and  movelist[-1] > self.x_center + self.x_buf):
+                leave += 1
+                movelist = []
+            elif ( movelist[0] > self.x_center
+                    and  movelist[-1] < self.x_center - self.x_buf):
+                enter += 1
+                movelist = []
+        return enter, leave, movelist
+
+    def crossed_y_centerline(self, enter, leave, movelist):
+        # Check if over center line then count
+        if len(movelist) > 1:  # Are there two entries
+            if ( movelist[0] <= self.y_center
+                    and  movelist[-1] > self.y_center + self.y_buf ):
+                leave += 1
+                movelist = []
+            elif ( movelist[0] > self.y_center
+                    and  movelist[-1] < self.y_center - self.y_buf ):
+                enter += 1
+                movelist = []
+        return enter, leave, movelist
+
 
 # cores das linhas e textos do opencv
 cvWhite = (255,255,255)
@@ -165,32 +202,18 @@ class FileVideoStream(object):
         # indicate that the thread should be stopped
         self._stopped = True
 
-def crossed_x_centerline(enter, leave, movelist):
-    xbuf = 20  # buffer space on either side of x_center to avoid extra counts
-    # Check if over center line then count
-    if len(movelist) > 1:  # Are there two entries
-        if ( movelist[0] <= x_center
-                   and  movelist[-1] > x_center + x_buf):
-            leave += 1
-            movelist = []
-        elif ( movelist[0] > x_center
-                   and  movelist[-1] < x_center - x_buf):
-            enter += 1
-            movelist = []
-    return enter, leave, movelist
-
-def crossed_y_centerline(enter, leave, movelist):
-    # Check if over center line then count
-    if len(movelist) > 1:  # Are there two entries
-        if ( movelist[0] <= y_center
-                   and  movelist[-1] > y_center + y_buf ):
-            leave += 1
-            movelist = []
-        elif ( movelist[0] > y_center
-                   and  movelist[-1] < y_center - y_buf ):
-            enter += 1
-            movelist = []
-    return enter, leave, movelist
+# def crossed_y_centerline(enter, leave, movelist):
+#     # Check if over center line then count
+#     if len(movelist) > 1:  # Are there two entries
+#         if ( movelist[0] <= y_center
+#                    and  movelist[-1] > y_center + y_buf ):
+#             leave += 1
+#             movelist = []
+#         elif ( movelist[0] > y_center
+#                    and  movelist[-1] < y_center - y_buf ):
+#             enter += 1
+#             movelist = []
+#     return enter, leave, movelist
 
 def log_to_csv_file(data_to_append):
     log_file_path = baseDir + baseFileName + ".csv"
@@ -426,7 +449,7 @@ if __name__ == '__main__':
         try:
             
             print("Inicializando Video ....")
-            vs = FileVideoStream('/home/desenv/Projetos/PyMoveDetect/video/VID_20171021_144029337.mp4',
+            vs = FileVideoStream('/home/locutus/Projetos/PyMoveDetect/video/VID_20171021_144029337.mp4',
                                   CAMERA_WIDTH,
                                   CAMERA_HEIGHT)
 

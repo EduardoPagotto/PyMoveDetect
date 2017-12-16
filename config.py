@@ -26,12 +26,7 @@ WEBCAM_HFLIP = False  # default = False USB Webcam flip image horizontally
 WEBCAM_VFLIP = False  # default = False USB Webcam flip image vertically
 
 # Pi Camera Settings
-CAMERA_WIDTH = 352    # default = 320 PiCamera image width can be greater if quad core RPI
-CAMERA_HEIGHT = 288   # default = 240 PiCamera image height
-CAMERA_HFLIP = False  # True=flip camera image horizontally
-CAMERA_VFLIP = False  # True=flip camera image vertically
-CAMERA_ROTATION = 0   # Rotate camera image valid values 0, 90, 180, 270
-CAMERA_FRAMERATE = 25 # default = 25 lower for USB Web Cam. Try different settings
+
 
 
 # OpenCV Settings
