@@ -1,24 +1,18 @@
 #!/usr/bin/env python3
 '''
 Created on 20171012
-Update on 20171130
+Update on 20171216
 @author: Eduardo Pagotto
 '''
 
-#pylint: disable=C0301
-#pylint: disable=C0103
-#pylint: disable=W0703
-#pylint: disable=R0913
+
 
 import os
 import datetime
 
-#from config import *
-
 import logging
 import cv2
 import time
-#from threading import Thread
 import threading
 
 class canvas_img(object):
@@ -65,6 +59,21 @@ class canvas_img(object):
                 enter += 1
                 movelist = []
         return enter, leave, movelist
+
+class MoveEntity(object):
+    def __init__(self):
+        self.MIN_AREA = 700            # excludes all contours less than or equal to this Area
+        self.diff_window_on = False    # Show OpenCV image difference window
+        self.thresh_window_on = False  # Show OpenCV image Threshold window
+        self.SHOW_CIRCLE = True        # True= show circle False= show rectancle on biggest motion
+        self.CIRCLE_SIZE = 5           # diameter of circle for SHOW_CIRCLE
+        self.LINE_THICKNESS = 2        # thickness of bounding line in pixels
+        self.font_scale = .5           # size opencv text
+        self.WINDOW_BIGGER = 2         # Resize multiplier for Movement Status Window
+                                       # if gui_window_on=True then makes opencv window bigger
+                                       # # Note if the window is larger than 1 then a reduced frame rate will occur
+        self.THRESHOLD_SENSITIVITY = 25
+        self.BLUR_SIZE = 10        
 
 
 # cores das linhas e textos do opencv
@@ -202,19 +211,6 @@ class FileVideoStream(object):
         # indicate that the thread should be stopped
         self._stopped = True
 
-# def crossed_y_centerline(enter, leave, movelist):
-#     # Check if over center line then count
-#     if len(movelist) > 1:  # Are there two entries
-#         if ( movelist[0] <= y_center
-#                    and  movelist[-1] > y_center + y_buf ):
-#             leave += 1
-#             movelist = []
-#         elif ( movelist[0] > y_center
-#                    and  movelist[-1] < y_center - y_buf ):
-#             enter += 1
-#             movelist = []
-#     return enter, leave, movelist
-
 def log_to_csv_file(data_to_append):
     log_file_path = baseDir + baseFileName + ".csv"
     if not os.path.exists(log_file_path):
@@ -248,6 +244,8 @@ def get_image_name(path, prefix):
     return filename
 
 def track2(vs):
+
+    me = MoveEntity()
 
     image1 = vs.read()   # initialize image1 (done once)
     try:
@@ -420,28 +418,30 @@ def track2(vs):
                 vs.stop()
                 print("encerrando sistema")
                 quit(0)
+
+
 #https://askubuntu.com/questions/83161/use-ffmpeg-to-transform-mp4-to-same-high-quality-avi-file
-def track(vs):
-    while True:
-        image1 = vs.read()   # initialize image1 (done once)
+# def track(vs):
+#     while True:
+#         image1 = vs.read()   # initialize image1 (done once)
 
-        if image1 is not None:
-            try:
-                grayimage1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)#cv2.COLOR_YUV420p2GRAY)
+#         if image1 is not None:
+#             try:
+#                 grayimage1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)#cv2.COLOR_YUV420p2GRAY)
 
-                cv2.imshow('frame',grayimage1)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+#                 cv2.imshow('frame',grayimage1)
+#                 if cv2.waitKey(1) & 0xFF == ord('q'):
+#                     break
                     
-            except:
-                vs.stop()
-                print("Problem Connecting To Camera Stream.")
-                print("Restarting Camera.  One Moment Please .....")
-                time.sleep(4)
-            #return
-        else:
-            time.sleep(1)
-            print('espera...')
+#             except:
+#                 vs.stop()
+#                 print("Problem Connecting To Camera Stream.")
+#                 print("Restarting Camera.  One Moment Please .....")
+#                 time.sleep(4)
+#             #return
+#         else:
+#             time.sleep(1)
+#             print('espera...')
 
 
 if __name__ == '__main__':
