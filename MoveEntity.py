@@ -1,10 +1,18 @@
+#!/usr/bin/env python3
+'''
+Created on 20171217
+Update on 20171218
+@author: Eduardo Pagotto
+'''
 
-
-
-
-
+#pylint: disable=C0301
+#pylint: disable=C0103
+#pylint: disable=W0703
 
 class MoveEntity(object):
+    '''
+    Classe de Movimentos detectados
+    '''
     def __init__(self):
         self.MIN_AREA = 700            # excludes all contours less than or equal to this Area
         self.diff_window_on = False    # Show OpenCV image difference window

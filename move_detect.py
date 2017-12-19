@@ -5,215 +5,91 @@ Update on 20171216
 @author: Eduardo Pagotto
 '''
 
-import os
+#pylint: disable=C0301
+#pylint: disable=C0103
+#pylint: disable=W0703
+
+#import os
 import datetime
 
 import logging
-#import cv2
+import cv2
 import time
-import threading
+#import threading
+
+from CanvasImg import CanvasImg 
+from MoveEntity import MoveEntity
+from VideoStreamDev import VideoStreamDev
+from ConfigFile import ConfigFile
 
 # cores das linhas e textos do opencv
-cvWhite = (255,255,255)
-cvBlack = (0,0,0)
-cvBlue = (255,0,0)
-cvGreen = (0,255,0)
-cvRed = (0,0,255)
+cvWhite = (255, 255, 255)
+cvBlack = (0, 0, 0)
+cvBlue = (255, 0, 0)
+cvGreen = (0, 255, 0)
+cvRed = (0, 0, 255)
 
 color_mo = cvRed  # cor do circulo de trackeamento
 color_txt = cvBlue   # cor do texto da linha central
 
-font = cv2.FONT_HERSHEY_SIMPLEX
-FRAME_COUNTER = 1000  
-quote = '"'  
+#font = cv2.FONT_HERSHEY_SIMPLEX
+FRAME_COUNTER = 1000
+quote = '"'
 
-mypath=os.path.abspath(__file__)
-baseDir=mypath[0:mypath.rfind("/")+1]
-baseFileName=mypath[mypath.rfind("/")+1:mypath.rfind(".")]
-progName = os.path.basename(__file__)
+# def log_to_csv_file(data_to_append):
+#     log_file_path = baseDir + baseFileName + ".csv"
+#     if not os.path.exists(log_file_path):
+#         open( log_file_path, 'w' ).close()
+#         f = open( log_file_path, 'ab' )
+#         f.close()
+#         logging.info("Create New Data Log File %s", log_file_path )
+#     filecontents = data_to_append + "\n"
+#     f = open( log_file_path, 'a+' )
+#     f.write( filecontents )
+#     f.close()
+#     return
 
-logFilePath = baseDir + baseFileName + ".log"
-if verbose:
-    print("carregando inteligencia artificial")
-    logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)-8s %(funcName)-10s %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
-elif save_log:
-    logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)-8s %(funcName)-10s %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',
-                    filename=logFilePath,
-                    filemode='w')
-else:
-    print("Logging Disabled per Variable verbose=False")
-    logging.basicConfig(level=logging.CRITICAL,
-                    format='%(asctime)s %(levelname)-8s %(funcName)-10s %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
-
-if not os.path.isdir(image_path):
-    logging.info("Creating Image Storage Folder %s", image_path )
-    os.makedirs(image_path)
-
-class PiVideoStream:
-    def __init__(self, resolution=(CAMERA_WIDTH, CAMERA_HEIGHT), framerate=CAMERA_FRAMERATE, rotation=0, hflip=False, vflip=False):
-        # inicializacao da camera
-        self.camera = PiCamera()
-        self.camera.resolution = resolution
-        self.camera.rotation = rotation
-        self.camera.framerate = framerate
-        self.camera.hflip = hflip
-        self.camera.vflip = vflip
-        self.rawCapture = PiRGBArray(self.camera, size=resolution)
-        self.stream = self.camera.capture_continuous(self.rawCapture,
-            format="bgr", use_video_port=True)
-
-        # initialize the frame and the variable used to indicate
-        # if the thread should be stopped
-        self.frame = None
-        self.stopped = False
-
-    def start(self):
-        # start the thread to read frames from the video stream
-        t = Thread(target=self.update, args=())
-        t.daemon = True
-        t.start()
-        return self
-
-    def update(self):
-        # keep looping infinitely until the thread is stopped
-        for f in self.stream:
-            # grab the frame from the stream and clear the stream in
-            # preparation for the next frame
-            self.frame = f.array
-            self.rawCapture.truncate(0)
-
-            # if the thread indicator variable is set, stop the thread
-            # and resource camera resources
-            if self.stopped:
-                self.stream.close()
-                self.rawCapture.close()
-                self.camera.close()
-                return
-
-    def read(self):
-        # return the frame most recently read
-        return self.frame
-
-    def stop(self):
-        # indicate that the thread should be stopped
-        self.stopped = True
-
-class FileVideoStream(object):
-    '''Classe de stream do arquivo'''
-    def __init__(self, device_cam, width, height):
-        '''Inicializacao thread de video'''
-
-        self._thead = threading.Thread(target=self.update, args=())
-        self._thead.daemon = True
-        self._stopped = False
-        
-        self._ao_vivo = isinstance( device_cam, int )
-
-        self._stream = cv2.VideoCapture(device_cam)
-        self._stream.set(3,width)
-        self._stream.set(4,height)
-
-        (self._grabbed, self._frame) = self._stream.read()
-
-    def start(self):
-        '''Ativa a Thread'''
-        # start the thread to read frames from the video stream
-        self._thead.start()
-        return self
-
-    def update(self):
-        '''Atualiza status do video'''
-        while True:
-            if self._stopped:
-                return
-            
-            if self._ao_vivo is False:
-                time.sleep(0.037)#delay devido ao video continuo 1/27 (27FPS)
-
-            #Le o proximo frame
-            (self._grabbed, self._frame) = self._stream.read()
-
-
-    def read(self):
-        '''retorna o frame mais recente'''
-        return self._frame
-
-    def stop(self):
-        '''Sinaliza parada da thread'''
-        # indicate that the thread should be stopped
-        self._stopped = True
-
-def log_to_csv_file(data_to_append):
-    log_file_path = baseDir + baseFileName + ".csv"
-    if not os.path.exists(log_file_path):
-        open( log_file_path, 'w' ).close()
-        f = open( log_file_path, 'ab' )
-        f.close()
-        logging.info("Create New Data Log File %s", log_file_path )
-    filecontents = data_to_append + "\n"
-    f = open( log_file_path, 'a+' )
-    f.write( filecontents )
-    f.close()
-    return
-
-def show_FPS(start_time,frame_count):
-    if debug:
-        if frame_count >= FRAME_COUNTER:
-            duration = float(time.time() - start_time)
-            FPS = float(frame_count / duration)
-            logging.info("Processing at %.2f fps last %i frames", FPS, frame_count)
-            frame_count = 0
-            start_time = time.time()
-        else:
-            frame_count += 1
-    return start_time, frame_count
+# def show_FPS(start_time,frame_count):
+#     if debug:
+#         if frame_count >= FRAME_COUNTER:
+#             duration = float(time.time() - start_time)
+#             FPS = float(frame_count / duration)
+#             logging.info("Processing at %.2f fps last %i frames", FPS, frame_count)
+#             frame_count = 0
+#             start_time = time.time()
+#         else:
+#             frame_count += 1
+#     return start_time, frame_count
 
 def get_image_name(path, prefix):
     # nome das imagens a serem salvas
     rightNow = datetime.datetime.now()
-    filename = ("%s/%s-%04d%02d%02d-%02d%02d%02d.jpg" %
-          ( path, prefix ,rightNow.year, rightNow.month, rightNow.day, rightNow.hour, rightNow.minute, rightNow.second ))
+    filename = ("%s/%s-%04d%02d%02d-%02d%02d%02d.jpg" % (path, prefix, rightNow.year, rightNow.month, rightNow.day, rightNow.hour, rightNow.minute, rightNow.second))
     return filename
 
-# def track2(vs):
+def track2(vs):
+    me = MoveEntity()
+    grayimage1 = vs.get_gray_image()
 
-#     me = MoveEntity()
+    if vs.canvas.windows_on:
+        logging.info('pressione q para sair')
+    else:
+        logging.info('precione crt-c para sair')
 
-#     image1 = vs.read()   # initialize image1 (done once)
-#     try:
-#         grayimage1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
-#     except:
-#         vs.stop()
-#         print("Problem Connecting To Camera Stream.")
-#         print("Restarting Camera.  One Moment Please .....")
-#         time.sleep(4)
-#         return
 
-#     if window_on:
-#         print("Press q in window Quits")
-#     else:
-#         print("Press ctrl-c to Quit")
-#     print("Start Tracking Enter Leave Activity ....")
+    logging.info('A iniciar tracking...')
 
-#     if not verbose:
-#         print("Note: Console Messages Suppressed per verbose=%s" % verbose)
+    big_w, big_h = canvas_img.get_bigger()
 
-#     big_w = int(CAMERA_WIDTH * WINDOW_BIGGER)
-#     big_h = int(CAMERA_HEIGHT * WINDOW_BIGGER)
-#     cx, cy, cw, ch = 0, 0, 0, 0   # initialize contour center variables
-#     frame_count = 0  #initialize for show_fps
-#     start_time = time.time() #initialize for show_fps
+    cx, cy, cw, ch = 0, 0, 0, 0   # initialize contour center variables
+    frame_count = 0  #initialize for show_fps
+    start_time = time.time() #initialize for show_fps
 
-#     still_scanning = True
-#     movelist = []
-#     move_time = time.time()
-#     enter = 0
-#     leave = 0
+    still_scanning = True
+    movelist = []
+    move_time = time.time()
+    enter = 0
+    leave = 0
 
 #     while still_scanning:
 #         # initialize variables
@@ -381,22 +257,33 @@ def get_image_name(path, prefix):
 
 
 if __name__ == '__main__':
+
+    cf = None
+    canvas_img = None
+    vs = None
+
+    try:
+        cf = ConfigFile('config/config.json')
+
+    except Exception as exp:
+        print('Erro Critico identificado no loadas de config')
+
     while True:
         try:
-            
-            print("Inicializando Video ....")
-            vs = FileVideoStream('/home/locutus/Projetos/PyMoveDetect/video/VID_20171021_144029337.mp4',
-                                  CAMERA_WIDTH,
-                                  CAMERA_HEIGHT)
+
+            canvas_img = CanvasImg(cf.get()['canvas'])
+
+            logging.info("Inicializando Video device....")
+            vs = VideoStreamDev(cf.get()['video_device'], canvas_img, cf.get()['debug'])
 
             # print("Inicializando USB webcam ....")
-            # vs = FileVideoStream(0,
-            #                      CAMERA_WIDTH,
-            #                      CAMERA_HEIGHT)
+            #vs = VideoStreamDev(0, canvas_img.CAMERA_WIDTH, canvas_img.CAMERA_HEIGHT)
 
             vs.start()
             time.sleep(4)
+
             track2(vs)
+
         except KeyboardInterrupt:
             vs.stop()
             print("")
