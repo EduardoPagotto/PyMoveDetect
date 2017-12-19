@@ -9,12 +9,6 @@ Update on 20171218
 #pylint: disable=C0103
 #pylint: disable=W0703
 
-
-class Properties(object):
-    def __init__(self, config_settings):
-        self.bigger = config_settings['bigger']
-
-
 class CanvasImg(object):
     '''
     Classe de tratamento de tela para acerto geometrico de linhas e planos
@@ -40,42 +34,15 @@ class CanvasImg(object):
         self.x_buf = self.width / 10
         self.y_buf = self.height / 10
 
-        self.properties = Properties(config_settings['prop'])
-        
-
-    def crossed_x_centerline(self, enter, leave, movelist):
+    def set_flipper(self):
         '''
-        Determina se cruza o meio em X
+        Define o valor usado no openCV para o Flip se h ou v forem true
         '''
-        #xbuf = 20  # buffer space on either side of x_center to avoid extra counts
-        # Check if over center line then count
-        if len(movelist) > 1:  # Are there two entries
-            if movelist[0] <= self.x_center and  movelist[-1] > self.x_center + self.x_buf:
-                leave += 1
-                movelist = []
-            elif movelist[0] > self.x_center and  movelist[-1] < self.x_center - self.x_buf:
-                enter += 1
-                movelist = []
-
-        return enter, leave, movelist
-
-    def crossed_y_centerline(self, enter, leave, movelist):
-        '''
-        Determina se cruza o meio em Y
-        '''
-        # Check if over center line then count
-        if len(movelist) > 1:  # Are there two entries
-            if movelist[0] <= self.y_center and  movelist[-1] > self.y_center + self.y_buf:
-                leave += 1
-                movelist = []
-            elif movelist[0] > self.y_center and  movelist[-1] < self.y_center - self.y_buf:
-                enter += 1
-                movelist = []
-        return enter, leave, movelist
-
-    def get_bigger(self):
-
-        big_w = int(self.width * self.properties.bigger)
-        big_h = int(self.height * self.properties.bigger)
-
-        return (big_w, big_h)
+        if (self.hflip or self.vflip) is False:
+            return None
+        elif self.hflip is True:
+            return 1
+        elif self.vflip is True:
+            return 0
+        else:
+            return -1

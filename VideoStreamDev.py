@@ -83,13 +83,10 @@ class VideoStreamDev(object):
         return start_time, frame_count
 
     def get_gray_image(self):
-        image = self.read()   # initialize image1 (done once)
         try:
-            grayimage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            return grayimage
+            return cv2.cvtColor(self.read(), cv2.COLOR_BGR2GRAY)
         except Exception as exp:
             self.stop()
-
             logging.error('Nao foi possivel capturar image GRAY, Erro:%s', str(exp))
             raise exp
             
