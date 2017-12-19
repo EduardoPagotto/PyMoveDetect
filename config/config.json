@@ -5,7 +5,7 @@
         "log_file": "log/move.log"
     },
     "img_pat": "image/",
-    "video_device": "/home/locutus/Projetos/PyMoveDetect/video/VID_20171021_144029337.mp4",
+    "video_device": "/home/pagotto/Projetos/PyMoveDetect/video/VID_20171021_144029337.mp4",
     "canvas": {
         "defaults": {
             "width": 352,
