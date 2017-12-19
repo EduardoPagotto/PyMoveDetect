@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Created on 20171130
-Update on 20171130
+Update on 20171219
 @author: Eduardo Pagotto
  '''
 
@@ -83,8 +83,8 @@ def verifica_ip_igual(dados_atuais, arquivo_verificador):
     Retorno: True se os ips se mantem, False se ouve alguma alteracao
     '''
     try:
-        with open(arquivo_verificador, 'r') as myfile:
-            data = myfile.read()
+        with open(arquivo_verificador, 'r') as myfile_hash:
+            data = myfile_hash.read()
 
             hash_arquivo = hashlib.md5(data.encode('UTF-8')).hexdigest()
             hash_ips_atuais = hashlib.md5(dados_atuais.encode('UTF-8')).hexdigest()
@@ -101,10 +101,8 @@ def verifica_ip_igual(dados_atuais, arquivo_verificador):
 
 if __name__ == '__main__':
     try:
-
-        elemento = None #
-        with open("/home/desenv/Projetos/PyMoveDetect/dados.json", 'r') as fin:
-        #with open("dados.json", 'r') as fin:
+        elemento = None
+        with open("/home/desenv/Projetos/PyMoveDetect/config/dados.json", 'r') as fin:
             elemento = json.load(fin)
 
         #Dados Device

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Created on 20171217
-Update on 20171218
+Update on 20171219
 @author: Eduardo Pagotto
 '''
 
@@ -71,6 +71,7 @@ class MoveEntity(object):
         cx, cy, cw, ch = 0, 0, 0, 0   # initialize contour center variables
 
         #FIXME usar o nome correto da variavel
+        centerline_vert = True
         biggest_area = self.min_area
 
         move_time = move_time_inicial
