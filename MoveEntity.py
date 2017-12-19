@@ -32,6 +32,9 @@ class MoveEntity(object):
         #self.big_w = int(w * self.bigger)
         #self.big_h = int(h * self.bigger)
 
+        self.enter = 0
+        self.leave = 0
+
     def crossed_x_centerline(self, enter, leave, movelist):
         '''
         Determina se cruza o meio em X
@@ -64,6 +67,8 @@ class MoveEntity(object):
 
 
     def detect_area(self, grayimage1, grayimage2, move_time_inicial):
+
+        cx, cy, cw, ch = 0, 0, 0, 0   # initialize contour center variables
 
         #FIXME usar o nome correto da variavel
         biggest_area = self.min_area
@@ -103,91 +108,91 @@ class MoveEntity(object):
                     #logging.info("Exceeded %.2f Seconds - Clear movelist" % movelist_timeout)
                 move_time = time.time()
 
-                old_enter = enter
-                old_leave = leave
+                old_enter = self.enter
+                old_leave = self.leave
                 if centerline_vert:
                     movelist.append(cx)
-                    enter, leave, movelist = self.crossed_x_centerline(enter, leave, movelist)
+                    self.enter, self.leave, movelist = self.crossed_x_centerline(self.enter, self.leave, movelist)
                 else:
                     movelist.append(cy)
-                    enter, leave, movelist = self.crossed_y_centerline(enter, leave, movelist)
+                    self.enter, self.leave, movelist = self.crossed_y_centerline(self.enter, self.leave, movelist)
 
-                if not movelist:
-                    if enter > old_enter:
-                        if self.inout_reverse:   # reverse enter leave if required
-                            prefix = "leave"
-                        else:
-                            prefix = "enter"
-                    elif leave > old_leave:
-                        if self.inout_reverse:
-                            prefix = enter
-                        else:
-                            prefix = "leave"
-                    else:
-                        prefix = "error"
+                # if not movelist:
+                #     if enter > old_enter:
+                #         if self.inout_reverse:   # reverse enter leave if required
+                #             prefix = "leave"
+                #         else:
+                #             prefix = "enter"
+                #     elif leave > old_leave:
+                #         if self.inout_reverse:
+                #             prefix = enter
+                #         else:
+                #             prefix = "leave"
+                #     else:
+                #         prefix = "error"
 
-                    if self.inout_reverse:
-                        logging.info("leave=%i enter=%i Diff=%i" % ( leave, enter, abs(enter-leave)))
-                    else:
-                        logging.info("enter=%i leave=%i Diff=%i" % ( enter, leave, abs(enter-leave)))
+                #     if self.inout_reverse:
+                #         logging.info("leave=%i enter=%i Diff=%i" % ( leave, enter, abs(enter-leave)))
+                #     else:
+                #         logging.info("enter=%i leave=%i Diff=%i" % ( enter, leave, abs(enter-leave)))
 
-                    # Save image
-                    if save_images:
-                        filename = get_image_name( image_path, prefix)
-                        save_image = vs.read()
-                        logging.info("Save: %s", filename)
-                        cv2.imwrite(filename, save_image)
+                    # # Save image
+                    # if save_images:
+                    #     filename = get_image_name( image_path, prefix)
+                    #     save_image = vs.read()
+                    #     logging.info("Save: %s", filename)
+                    #     cv2.imwrite(filename, save_image)
 
-                    # Save data to csv file
-                    if save_CSV:
-                        log_time = datetime.datetime.now()
-                        log_csv_time = ("%s%04d%02d%02d%s,%s%02d%s,%s%02d%s,%s%02d%s" %
-                                       ( quote, log_time.year, log_time.month,
-                                         log_time.day, quote,
-                                         quote, log_time.hour, quote,
-                                         quote, log_time.minute, quote,
-                                         quote, log_time.second, quote ))
+                    # # Save data to csv file
+                    # if save_CSV:
+                    #     log_time = datetime.datetime.now()
+                    #     log_csv_time = ("%s%04d%02d%02d%s,%s%02d%s,%s%02d%s,%s%02d%s" %
+                    #                    ( quote, log_time.year, log_time.month,
+                    #                      log_time.day, quote,
+                    #                      quote, log_time.hour, quote,
+                    #                      quote, log_time.minute, quote,
+                    #                      quote, log_time.second, quote ))
 
-                        log_csv_text = ("%s,%s%s%s,%s%s%s,%i,%i,%i,%i,%i" %
-                                    ( log_csv_time,
-                                      quote, prefix, quote,
-                                      quote, filename, quote,
-                                      cx, cy, cw, ch, cw * ch ))
-                        log_to_csv_file( log_csv_text )
+                    #     log_csv_text = ("%s,%s%s%s,%s%s%s,%i,%i,%i,%i,%i" %
+                    #                 ( log_csv_time,
+                    #                   quote, prefix, quote,
+                    #                   quote, filename, quote,
+                    #                   cx, cy, cw, ch, cw * ch ))
+                    #     log_to_csv_file( log_csv_text )
 
-                if window_on:
-                    # show small circle at motion location
-                    if SHOW_CIRCLE and motion_found:
-                        cv2.circle(image2,(cx,cy),CIRCLE_SIZE,(color_mo), LINE_THICKNESS)
-                    else:
-                        cv2.rectangle(image2,(cx,cy),(x+cw,y+ch),(color_mo), LINE_THICKNESS)
+                # if window_on:
+                #     # show small circle at motion location
+                #     if SHOW_CIRCLE and motion_found:
+                #         cv2.circle(image2,(cx,cy),CIRCLE_SIZE,(color_mo), LINE_THICKNESS)
+                #     else:
+                #         cv2.rectangle(image2,(cx,cy),(x+cw,y+ch),(color_mo), LINE_THICKNESS)
 
-                if show_moves:
-                    logging.info("cx,cy(%i,%i) C:%2i A:%ix%i=%i SqPx" %
-                                      (cx ,cy, total_contours, cw, ch, biggest_area))
+                # if show_moves:
+                #     logging.info("cx,cy(%i,%i) C:%2i A:%ix%i=%i SqPx" %
+                #                       (cx ,cy, total_contours, cw, ch, biggest_area))
 
-        if show_fps:
-            start_time, frame_count = show_FPS(start_time, frame_count)
+        # if show_fps:
+        #     start_time, frame_count = show_FPS(start_time, frame_count)
 
-        if window_on:
+        # if window_on:
 
-            if inout_reverse:
-                img_text = ("saida %i          entrada %i" % (leave, enter))
-            else:
-                img_text = ("entrada %i          saida %i" % (enter, leave))
-            cv2.putText( image2, img_text, (35,15), font, font_scale,(color_txt),1)
+        #     if inout_reverse:
+        #         img_text = ("saida %i          entrada %i" % (leave, enter))
+        #     else:
+        #         img_text = ("entrada %i          saida %i" % (enter, leave))
+        #     cv2.putText( image2, img_text, (35,15), font, font_scale,(color_txt),1)
 
-            if diff_window_on:
-                cv2.imshow('Difference Image',differenceimage)
-            if thresh_window_on:
-                cv2.imshow('OpenCV Threshold', thresholdimage)
-            if WINDOW_BIGGER > 1:  # Note setting a bigger window will slow the FPS
-                image3 = cv2.resize( image2,( big_w, big_h ))
-            cv2.imshow('pressione q para sair)', image3)
+        #     if diff_window_on:
+        #         cv2.imshow('Difference Image',differenceimage)
+        #     if thresh_window_on:
+        #         cv2.imshow('OpenCV Threshold', thresholdimage)
+        #     if WINDOW_BIGGER > 1:  # Note setting a bigger window will slow the FPS
+        #         image3 = cv2.resize( image2,( big_w, big_h ))
+        #     cv2.imshow('pressione q para sair)', image3)
 
-            # Close Window if q pressed while mouse over opencv gui window
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                cv2.destroyAllWindows()
-                vs.stop()
-                print("encerrando sistema")
-                quit(0)
+        #     # Close Window if q pressed while mouse over opencv gui window
+        #     if cv2.waitKey(1) & 0xFF == ord('q'):
+        #         cv2.destroyAllWindows()
+        #         vs.stop()
+        #         print("encerrando sistema")
+        #         quit(0)

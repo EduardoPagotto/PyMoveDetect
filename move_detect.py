@@ -9,13 +9,11 @@ Update on 20171216
 #pylint: disable=C0103
 #pylint: disable=W0703
 
-#import os
 import datetime
 
 import logging
 import cv2
 import time
-#import threading
 
 from CanvasImg import CanvasImg 
 from MoveEntity import MoveEntity
@@ -36,31 +34,6 @@ color_txt = cvBlue   # cor do texto da linha central
 FRAME_COUNTER = 1000
 quote = '"'
 
-# def log_to_csv_file(data_to_append):
-#     log_file_path = baseDir + baseFileName + ".csv"
-#     if not os.path.exists(log_file_path):
-#         open( log_file_path, 'w' ).close()
-#         f = open( log_file_path, 'ab' )
-#         f.close()
-#         logging.info("Create New Data Log File %s", log_file_path )
-#     filecontents = data_to_append + "\n"
-#     f = open( log_file_path, 'a+' )
-#     f.write( filecontents )
-#     f.close()
-#     return
-
-# def show_FPS(start_time,frame_count):
-#     if debug:
-#         if frame_count >= FRAME_COUNTER:
-#             duration = float(time.time() - start_time)
-#             FPS = float(frame_count / duration)
-#             logging.info("Processing at %.2f fps last %i frames", FPS, frame_count)
-#             frame_count = 0
-#             start_time = time.time()
-#         else:
-#             frame_count += 1
-#     return start_time, frame_count
-
 def get_image_name(path, prefix):
     # nome das imagens a serem salvas
     rightNow = datetime.datetime.now()
@@ -78,9 +51,6 @@ def track2(vs, mv):
 
     logging.info('A iniciar tracking...')
 
-    #big_w, big_h = canvas_img.get_bigger()
-
-    cx, cy, cw, ch = 0, 0, 0, 0   # initialize contour center variables
     frame_count = 0  #initialize for show_fps
     start_time = time.time() #initialize for show_fps
 
