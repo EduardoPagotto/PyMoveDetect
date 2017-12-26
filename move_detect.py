@@ -40,6 +40,13 @@ def get_image_name(path, prefix):
     filename = ("%s/%s-%04d%02d%02d-%02d%02d%02d.jpg" % (path, prefix, rightNow.year, rightNow.month, rightNow.day, rightNow.hour, rightNow.minute, rightNow.second))
     return filename
 
+
+def exibir(vs):
+    while True:
+        imagem = vs.read()
+        cv2.imshow('Exibir',imagem)
+        time.sleep(1)
+
 def track2(vs, mv):
 
     grayimage1 = vs.get_gray_image()
@@ -63,7 +70,7 @@ def track2(vs, mv):
         grayimage2 = vs.get_gray_image()#cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
 
         #mv.detect_area(grayimage1, grayimage2, move_time)
-        cv2.imshow('TESTE',grayimage2)
+        cv2.imshow('TESTE',vs.read())
 
         grayimage1 = grayimage2
 
@@ -88,9 +95,9 @@ if __name__ == '__main__':
             #vs = VideoStreamDev(0, canvas_img.CAMERA_WIDTH, canvas_img.CAMERA_HEIGHT)
 
             vs.start()
-            time.sleep(14)
-
-            track2(vs, mv)
+            #time.sleep(1)
+            exibir(vs)
+            #track2(vs, mv)
 
         except KeyboardInterrupt:
             vs.stop()
