@@ -19,9 +19,9 @@
     },
     "move_entity": {
         "bigger": 2,
-        "min_area": 5000,
-        "blur_size": 5,
-        "threshold_sensitivity": 5,
+        "min_area": 700,
+        "blur_size": 10,
+        "threshold_sensitivity": 25,
         
         "movelist_timeout": 0.5,
         "inout_reverse": false

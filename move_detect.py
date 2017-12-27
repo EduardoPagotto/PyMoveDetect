@@ -45,13 +45,15 @@ def track2(vs, mv):
     '''
     logging.info('A iniciar tracking...')
 
-    grayimage1 = vs.get_gray_image()
+    #grayimage1 = vs.get_gray_image()
+    grayimage1 = cv2.resize(vs.get_gray_image(), (vs.canvas.width, vs.canvas.height))
     still_scanning = True
 
     while still_scanning:
 
         #le imagem colorida inteira
-        image = vs.read()
+        #image = vs.read()
+        image = cv2.resize(vs.read(), (vs.canvas.width, vs.canvas.height))
 
         #converte para GRAY
         grayimage2 = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -66,23 +68,23 @@ def track2(vs, mv):
 
         # Calcula o FPS (FPS)
         fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
-        cv2.putText(image, "FPS : " + str(int(fps)), (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
-        cv2.putText(image, "Entidades : " + str(int(tot_mov)), (10,60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        cv2.putText(image, "FPS : " + str(int(fps)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
+        cv2.putText(image, "Entidades : " + str(int(tot_mov)), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
 
         #se há movimento desenhe retangulos e ajuste o FPS na Tela
         if tot_mov > 0:
             logging.debug('FPS: %d, Total Movimento: %d', fps, tot_mov)
             for entidade in lista:
                 entidade.draw_rectangle(image)
-        
+
         #ajusta o tamanho da imagem de teste
-        image_final = cv2.resize(image, (vs.canvas.width, vs.canvas.height))
-        cv2.imshow('pressione q para sair', image_final)
+        #image_final = cv2.resize(image, (vs.canvas.width, vs.canvas.height))
+        cv2.imshow('pressione q para sair', image)
 
         #para a imagem 2 para a imagem 1 para re-captura de frame
         grayimage1 = grayimage2
 
-        #espera tela de saida para fechar app 
+        #espera tela de saida para fechar app
         if cv2.waitKey(1) & 0xFF == ord('q'):
             cv2.destroyAllWindows()
             still_scanning = False

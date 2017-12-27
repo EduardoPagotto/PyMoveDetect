@@ -28,7 +28,11 @@ class Entidade(object):
         self.cw, self.ch = w, h
 
     def draw_rectangle(self, image):
-        cv2.rectangle(image,(self.cx, self.cy), (self.x + self.cw, self.y + self.ch), (0,255,0), 3)
+        '''
+        Desenha quadrado e info no mesmo
+        '''
+        cv2.putText(image, "ID:" + str(int(self.id)), (self.x, self.y), cv2.FONT_HERSHEY_SIMPLEX, 0.25, (255, 0, 0), 1)
+        cv2.rectangle(image, (self.cx, self.cy), (self.x + self.cw, self.y + self.ch), (0, 255, 0), 2)
 
 class MoveDetect(object):
     '''
