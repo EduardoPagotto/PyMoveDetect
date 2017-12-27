@@ -8,8 +8,8 @@
     "video_device": "/home/pagotto/Projetos/PyMoveDetect/video/VID_20171021_144029337.mp4",
     "canvas": {
         "defaults": {
-            "width": 352,
-            "height": 288,
+            "width": 640,
+            "height": 480,
             "hflip": false,
             "vflip": false,
             "rotation": 0,
@@ -19,9 +19,9 @@
     },
     "move_entity": {
         "bigger": 2,
-        "min_area": 700,
-        "blur_size": 10,
-        "threshold_sensitivity": 25,
+        "min_area": 5000,
+        "blur_size": 5,
+        "threshold_sensitivity": 5,
         
         "movelist_timeout": 0.5,
         "inout_reverse": false
