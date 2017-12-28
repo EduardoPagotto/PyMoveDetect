@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from MoveDetect import Entidade
+from MoveDetect import Entidade, aglutinador
 
 drawing = False # true if mouse is pressed
 mode = True # if True, draw rectangle. Press 'm' to toggle to curve
@@ -68,25 +68,35 @@ if __name__ == '__main__':
     img = np.zeros((512,512,3), np.uint8)
     cv2.namedWindow('image')
 
-    e2 = Entidade('Teste', 10, 10, 20, 20, None)
-    e3 = Entidade('Teste', 20, 100, 30, 30, None)
+    lista_geral = [ Entidade('Teste1', 10, 10, 20, 20, None), 
+                    Entidade('Teste2', 20, 20, 50, 50, None),
+                    Entidade('Teste3', 10, 100, 10, 10, None),
+                    Entidade('Teste4', 20, 400, 10, 10, None),
+                    Entidade('Teste5', 200, 400, 10, 10, None),
+                    Entidade('Teste6', 100, 30, 20, 20, None),
+                    Entidade('Teste7', 110, 15, 40, 40, None),
+                    Entidade('Teste8', 300, 300, 100, 100, None),
+                    Entidade('Teste9', 350, 290, 25, 25, None),
+                    Entidade('Teste10', 400, 200, 30, 10, None),
+                    Entidade('Teste11', 400, 450, 10, 20, None),
+                    Entidade('Teste12', 440, 390, 12, 20, None)]
 
-    d = e2.distancia(e3)
+    ef = aglutinador(lista_geral)
+    ef.cor_retangulo = (255, 255, 255)
+    #d = e2.distancia(e3)
 
-    val = e2.is_colide(e3)
-    if val is True:
-        e2.cor_retangulo = (255, 255, 255)
-
-    e2.draw_rectangle(img)
-    e3.draw_rectangle(img)
+    # val = e2.is_colide(e3)
+    # if val is True:
+    #     e2.cor_retangulo = (255, 255, 255)
 
     #e1 = Entidade('Teste', 200, 100, 50, 50, None)
     #e1.size_texto = 0.5
     #e1.trick_retangulo = 1
-    #e1.draw_rectangle(img)
 
-    # cv2.rectangle(img, (10,10), (100,100), (0, 255, 0), 1)
-
+    for e in lista_geral:
+        e.draw_rectangle(img)
+    
+    ef.draw_rectangle(img)
 
     while(1):
         cv2.imshow('image',img)

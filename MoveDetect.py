@@ -172,3 +172,69 @@ class MoveDetect(object):
                         detected_list.append(e)
 
         return detected_list
+
+def aglutinador(lista):
+    '''
+    converte uma lista de entidades em 1 entidade composta
+    '''
+    x_final = 9999999
+    y_final = 9999999
+    x1_final = 0
+    y1_final = 0
+
+    for r in lista:
+
+        x, y = tuple(r.retangulo[0])
+        x1, y1 = tuple(np.sum(r.retangulo, axis=0))
+
+        if x < x_final:
+            x_final = x
+
+        if y < y_final:
+            y_final = y
+
+        if x1 > x1_final:
+            x1_final = x1
+
+        if y1 > y1_final:
+            y1_final = y1
+
+    e = Entidade(0, x_final, y_final, x1_final - x_final, y1_final - y_final, lista[0].time)
+    e.identificador = lista[0].identificador
+    e.prefix_texo = lista[0].prefix_texo
+    e.cor_texto = lista[0].cor_texto
+    e.size_texto = lista[0].size_texto
+    e.trick_texto = lista[0].trick_texto
+    e.cor_retangulo = lista[0].cor_retangulo
+    e.trick_retangulo = lista[0].trick_retangulo
+
+    return e
+
+def classificador(lista):
+
+    lista_final = []
+
+    tot = len(lista)
+
+    for indice in range(0, tot):
+        
+        e1 = lista[indice]
+        
+        for sub in range(indice, tot):
+
+            if indice == sub:
+                continue
+
+            e2 = lista[sub]
+
+            if e1.is_collide(e2) is True:
+                 en = aglutinador([e1, e2])
+                 e1 = en
+            else:
+                lista_final.append(e2)
+
+        lista_final.append(e1)
+                    
+    return lista_final
+
+         
