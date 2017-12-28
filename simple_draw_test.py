@@ -64,15 +64,26 @@ def desenha_circulo():
 
 
 if __name__ == '__main__':
-
     
     img = np.zeros((512,512,3), np.uint8)
     cv2.namedWindow('image')
 
-    e1 = Entidade('Teste', 200, 100, 50, 50, None)
-    e1.size_texto = 0.5
-    e1.trick_retangulo = 1
-    e1.draw_rectangle(img)
+    e2 = Entidade('Teste', 10, 10, 20, 20, None)
+    e3 = Entidade('Teste', 20, 100, 30, 30, None)
+
+    d = e2.distancia(e3)
+
+    val = e2.is_colide(e3)
+    if val is True:
+        e2.cor_retangulo = (255, 255, 255)
+
+    e2.draw_rectangle(img)
+    e3.draw_rectangle(img)
+
+    #e1 = Entidade('Teste', 200, 100, 50, 50, None)
+    #e1.size_texto = 0.5
+    #e1.trick_retangulo = 1
+    #e1.draw_rectangle(img)
 
     # cv2.rectangle(img, (10,10), (100,100), (0, 255, 0), 1)
 

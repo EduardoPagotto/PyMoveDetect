@@ -71,9 +71,17 @@ if __name__ == '__main__':
                 for entidade in lista:
                     entidade.draw_rectangle(image)
 
+                    if alert1.is_collide(entidade) is True:
+                        alert1.cor_retangulo = (0, 0, 255)
+                        break
+
+                    if alert2.is_collide(entidade) is True:
+                        alert2.cor_retangulo = (0, 0, 255)
+                        break
+
             alert1.draw_rectangle(image)
             alert2.draw_rectangle(image)
-            
+
             cv2.imshow('pressione q para sair', image)
 
             #if move.differenceimage is not None:
