@@ -85,6 +85,7 @@ class MoveDetect(object):
         #inicializa buffer de cinza
         self._gray_buffer = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
 
+
     def detect(self, move_time):
         '''
         Detecta lista de movimentos com identificador zerado,
@@ -114,15 +115,20 @@ class MoveDetect(object):
             differenceimage = cv2.absdiff(self._gray_buffer, gray)
 
             #filtro em blur para gerar imagem mais cheia
-            self.differenceimage = cv2.blur(differenceimage, (self._blur_size, self._blur_size))
+            #self.differenceimage = cv2.blur(differenceimage, (self._blur_size, self._blur_size))
 
             # Calcula o threshold da diferenca das imagens baseado na variavel THRESHOLD_SENSITIVITY
             retval, thresholdimage = cv2.threshold(differenceimage, self._threshold_sensitivity, 255, cv2.THRESH_BINARY)
+
+            thresholdimage = cv2.dilate(thresholdimage, None, iterations=2)
+
             try:
                 thresholdimage, contours, hierarchy = cv2.findContours(thresholdimage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             except:
                 contours, hierarchy = cv2.findContours(thresholdimage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+
+            self.differenceimage = differenceimage
             self.thresholdimage = thresholdimage
 
             #acumula o buffer para ser comparado ao proximo frame que for valido (novo)
