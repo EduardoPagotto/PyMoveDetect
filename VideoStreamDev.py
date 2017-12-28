@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Created on 20171012
-Update on 20171216
+Update on 20171217
 @author: Eduardo Pagotto
 '''
 
@@ -11,6 +11,7 @@ Update on 20171216
 
 import cv2
 import time
+import datetime
 import threading
 
 import logging
@@ -18,9 +19,7 @@ import logging
 class VideoStreamDev(object):
     '''Classe de stream do arquivo/device'''
 
-    FRAME_COUNTER = 1000
-
-    def __init__(self, device_cam, canvas, debug):
+    def __init__(self, device_cam, width, height):
         '''Inicializacao thread de video'''
 
         self._thead = threading.Thread(target=self.update, args=())
@@ -29,15 +28,12 @@ class VideoStreamDev(object):
 
         self._ao_vivo = isinstance(device_cam, int)
 
-        self.canvas = canvas
-
         self._stream = cv2.VideoCapture(device_cam)
-        self._stream.set(3, canvas.width)
-        self._stream.set(4, canvas.height)
-
-        self.debug = debug
-
+        self._stream.set(3, width)
+        self._stream.set(4, height)
+        self._frame_count = 0
         (self._grabbed, self._frame) = self._stream.read()
+        self.fps = 0
 
     def start(self):
         '''Ativa a Thread'''
@@ -47,6 +43,10 @@ class VideoStreamDev(object):
 
     def update(self):
         '''Atualiza status do video'''
+
+        inicio = datetime.datetime.now()
+        frames_por_ciclo = 0
+
         while True:
             if self._stopped:
                 return
@@ -57,36 +57,21 @@ class VideoStreamDev(object):
             #Le o proximo frame
             (self._grabbed, self._frame) = self._stream.read()
 
+            self._frame_count += 1
+
+            frames_por_ciclo += 1
+            atual = datetime.datetime.now()
+            elapsed = atual - inicio
+            if elapsed.seconds >= 1: # 1 segundo
+                self.fps = int(frames_por_ciclo)
+                frames_por_ciclo = 0
+                inicio = atual
+
     def read(self):
         '''retorna o frame mais recente'''
-        return self._frame
+        return (self._frame_count, self._frame)
 
     def stop(self):
         '''Sinaliza parada da thread'''
         # indicate that the thread should be stopped
         self._stopped = True
-
-    def show_FPS(self, start_time, frame_count):
-        '''
-        contabiliza FPS
-        '''
-        if self.debug:
-            if frame_count >= self.FRAME_COUNTER:
-                duration = float(time.time() - start_time)
-                FPS = float(frame_count / duration)
-                logging.info("Processing at %.2f fps last %i frames", FPS, frame_count)
-                frame_count = 0
-                start_time = time.time()
-            else:
-                frame_count += 1
-
-        return start_time, frame_count
-
-    def get_gray_image(self):
-        try:
-            return cv2.cvtColor(self.read(), cv2.COLOR_BGR2GRAY)
-        except Exception as exp:
-            self.stop()
-            logging.error('Nao foi possivel capturar image GRAY, Erro:%s', str(exp))
-            raise exp
-            

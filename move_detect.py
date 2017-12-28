@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Created on 20171012
-Update on 20171226
+Update on 20171227
 @author: Eduardo Pagotto
 '''
 
@@ -9,7 +9,6 @@ Update on 20171226
 #pylint: disable=C0103
 #pylint: disable=W0703
 
-import datetime
 import logging
 import time
 import cv2
@@ -28,106 +27,68 @@ from ConfigFile import ConfigFile
 #color_mo = cvRed  # cor do circulo de trackeamento
 #color_txt = cvBlue   # cor do texto da linha central
 
-# def exibir(vs):
-#     while True:
-#         imagem = vs.read()
-#         cv2.imshow('Exibir',imagem)
-
-#         if cv2.waitKey(1) & 0xFF == ord('q'):
-#             cv2.destroyAllWindows()
-#             vs.stop()
-#             print("encerrando sistema")
-#             quit(0)
-
-def track2(vs, mv):
-    '''
-    executa o tracking basico
-    '''
-    logging.info('A iniciar tracking...')
-
-    #grayimage1 = vs.get_gray_image()
-    grayimage1 = cv2.resize(vs.get_gray_image(), (vs.canvas.width, vs.canvas.height))
-    still_scanning = True
-
-    while still_scanning:
-
-        #le imagem colorida inteira
-        #image = vs.read()
-        image = cv2.resize(vs.read(), (vs.canvas.width, vs.canvas.height))
-
-        #converte para GRAY
-        grayimage2 = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-        # Start timer
-        timer = cv2.getTickCount()
-
-        #retorna a lista de movimentos detectados nao normalizada
-        # TODO: criar normalização de movimento para fluidez e correto posicionamento 
-        lista = mv.detect(grayimage1, grayimage2, time.time())
-        tot_mov = len(lista)
-
-        # Calcula o FPS (FPS)
-        fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
-        cv2.putText(image, "FPS : " + str(int(fps)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
-        cv2.putText(image, "Entidades : " + str(int(tot_mov)), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
-
-        #se há movimento desenhe retangulos e ajuste o FPS na Tela
-        if tot_mov > 0:
-            logging.debug('FPS: %d, Total Movimento: %d', fps, tot_mov)
-            for entidade in lista:
-                entidade.draw_rectangle(image)
-
-        #ajusta o tamanho da imagem de teste
-        #image_final = cv2.resize(image, (vs.canvas.width, vs.canvas.height))
-        cv2.imshow('pressione q para sair', image)
-
-        #para a imagem 2 para a imagem 1 para re-captura de frame
-        grayimage1 = grayimage2
-
-        #espera tela de saida para fechar app
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            cv2.destroyAllWindows()
-            still_scanning = False
-            logging.info("encerrando sistema")
-
-
 if __name__ == '__main__':
 
+    #le configuracoes gerais, sai se falha
     try:
-        #le configuracoes
         cf = ConfigFile('config/config.json')
     except Exception as exp:
         print('Erro Critico identificado no loadas de config')
+        quit()
 
     try:
         canvas_img = CanvasImg(cf.get()['canvas'])
 
-        #mv = MoveEntity(canvas_img, cf.get()['move_entity'])
-        mv = MoveDetect(cf.get()['move_entity'])
+        logging.info("A iniciar Thread Video device....")
+        stream = VideoStreamDev(cf.get()['video_device'], canvas_img.width, canvas_img.height)
+        stream.start()
 
-        logging.info("Inicializando Video device....")
-        vs = VideoStreamDev(cf.get()['video_device'], canvas_img, cf.get()['debug'])
+        logging.info('A inicializar detector de movimento')
+        move = MoveDetect(stream, canvas_img.width, canvas_img.height, cf.get()['move_entity'])
 
-        # print("Inicializando USB webcam ....")
-        #vs = VideoStreamDev(0, canvas_img.CAMERA_WIDTH, canvas_img.CAMERA_HEIGHT)
+        logging.info('Captura Primeiro Frame')
+        move.start_frame()
 
-        vs.start()
-        #time.sleep(1)
-        #exibir(vs)
-        track2(vs, mv)
+        while True:
 
-        vs.stop()
+            lista = move.detect(time.time())
+            tot_mov = len(lista)
+
+            image = move.image
+
+            cv2.putText(image, "FPS : " + str(int(stream.fps)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
+
+            #se há movimento desenhe retangulos e ajuste o FPS na Tela
+            if tot_mov > 0:
+                cv2.putText(image, "Entidades : " + str(int(tot_mov)), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+                for entidade in lista:
+                    entidade.draw_rectangle(image)
+
+            cv2.imshow('pressione q para sair', image)
+
+            if move.differenceimage is not None:
+                cv2.imshow('differenceimage', move.differenceimage)
+
+            if move.thresholdimage is not None:
+                cv2.imshow('thresholdimage', move.thresholdimage)
+
+            #espera tela de saida para fechar app
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                logging.info("encerrando sistema")
+                break
 
     except KeyboardInterrupt:
-        vs.stop()
         print("")
         print("+++++++++++++++++++++++++++++++++++")
         print("User Pressed Keyboard ctrl-c")
         # print("%s %s - Exiting" % (progname, ver))
         print("+++++++++++++++++++++++++++++++++++")
         print("")
-        quit(0)
     except Exception as exp:
         print('Erro:{0}'.format(str(exp)))
+    finally:
+        stream.stop()
+        time.sleep(1)
+        cv2.destroyAllWindows()
 
     print('FIM')

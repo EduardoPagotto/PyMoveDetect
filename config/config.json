@@ -5,7 +5,8 @@
         "log_file": "log/move.log"
     },
     "img_pat": "image/",
-    "video_device": "/home/pagotto/Projetos/PyMoveDetect/video/VID_20171021_144029337.mp4",
+    "video_device": 1,
+    "video_device_old": "/home/locutus/Projetos/PyMoveDetect/video/VID_20171021_144029337.mp4",
     "canvas": {
         "defaults": {
             "width": 640,
@@ -19,9 +20,9 @@
     },
     "move_entity": {
         "bigger": 2,
-        "min_area": 700,
-        "blur_size": 10,
-        "threshold_sensitivity": 25,
+        "min_area": 500,
+        "blur_size": 100,
+        "threshold_sensitivity": 10,
         
         "movelist_timeout": 0.5,
         "inout_reverse": false
