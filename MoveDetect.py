@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Created on 20171226
-Update on 20171227
+Update on 20171228
 @author: Eduardo Pagotto
 '''
 
@@ -13,38 +13,42 @@ import time
 import logging
 import cv2
 
+import numpy as np
+
 from CanvasImg import CanvasImg
 
 class Entidade(object):
     '''
     Entidade de ocorrencia de movimento
     '''
-    def __init__(self, identificador, x, y, w, h, t):
+    def __init__(self, identificador, x, y, w, h, t):#left, up, right, botom
         '''
         Inicializa retangulo com Ocorrencia de movimento
         id: identificador da ocorrenica, na criacao sera inicializado com 0
-        x: posicao x
-        y: posicao y
-        w: tamanho do X
-        h: tamanho do Y
+        x: posicao X
+        y: posicao Y
+        w: tamanho X
+        h: tamanho Y
         t: time da ocorrencia(criacao)
         '''
         self.identificador = identificador
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
+        self.retangulo = np.array(([[x, y], [w, h]]), dtype=int) #array configuracao x, y, size_x, size_y
         self.time = t
-        self.cx = int(x + w/2)   # put circle in middle of width
-        self.cy = int(y + h/2)   # put circle in middle of height
-        self.cw, self.ch = w, h
+
+        self.prefix_texo = 'ID:'
+        self.cor_texto = (255, 0, 0)
+        self.size_texto = 0.25
+        self.trick_texto = 1
+
+        self.cor_retangulo = (0, 255, 0)
+        self.trick_retangulo = 2
 
     def draw_rectangle(self, image):
         '''
         Desenha quadrado e info no mesmo
         '''
-        cv2.putText(image, "ID:" + str(int(self.identificador)), (self.x, self.y), cv2.FONT_HERSHEY_SIMPLEX, 0.25, (255, 0, 0), 1)
-        cv2.rectangle(image, (self.cx, self.cy), (self.x + self.cw, self.y + self.ch), (0, 255, 0), 2)
+        cv2.rectangle(image, tuple(self.retangulo[0]), tuple(np.sum(self.retangulo, axis=0)), self.cor_retangulo, self.trick_retangulo)
+        cv2.putText(image, self.prefix_texo + self.identificador, (self.retangulo[0][0], self.retangulo[0][1]-10), cv2.FONT_HERSHEY_SIMPLEX, self.size_texto, self.cor_texto, self.trick_texto)
 
 class MoveDetect(object):
     '''
@@ -127,7 +131,7 @@ class MoveDetect(object):
             except:
                 contours, hierarchy = cv2.findContours(thresholdimage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-
+            #buffer usado apenas para debug
             self.differenceimage = differenceimage
             self.thresholdimage = thresholdimage
 
@@ -141,7 +145,7 @@ class MoveDetect(object):
                     # aproveita apenas os maiores que self.min_area
                     if cv2.contourArea(c) > self._min_area:
                         (x, y, w, h) = cv2.boundingRect(c)
-                        e = Entidade(0, x, y, w, h, move_time)
+                        e = Entidade(str(0), x, y, w, h, move_time)
                         detected_list.append(e)
 
         return detected_list

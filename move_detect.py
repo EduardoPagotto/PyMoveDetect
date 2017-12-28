@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Created on 20171012
-Update on 20171227
+Update on 20171228
 @author: Eduardo Pagotto
 '''
 
@@ -14,7 +14,7 @@ import time
 import cv2
 
 from CanvasImg import CanvasImg
-from MoveDetect import MoveDetect
+from MoveDetect import MoveDetect, Entidade
 from VideoStreamDev import VideoStreamDev
 from ConfigFile import ConfigFile
 
@@ -24,8 +24,6 @@ from ConfigFile import ConfigFile
 # cvBlue = (255, 0, 0)
 # cvGreen = (0, 255, 0)
 # cvRed = (0, 0, 255)
-#color_mo = cvRed  # cor do circulo de trackeamento
-#color_txt = cvBlue   # cor do texto da linha central
 
 if __name__ == '__main__':
 
@@ -61,15 +59,11 @@ if __name__ == '__main__':
             alerta_area1 = 0
             alerta_area2 = 0
 
-            pos = (80, 180)
-            size = (150, 100)
+            alert1 = Entidade(str(1), 80, 180, 150, 100, None)
+            alert1.prefix_texo = 'Detect Area'
 
-            pos2 = (575, 300)
-            size2 = (150, 150)
-
-            cor_normal = (255, 0, 0)
-            cor_alerta = (0, 0, 255)
-            cor_selecionada = cor_normal
+            alert2 = Entidade(str(2), 575, 300, 150, 150, None)
+            alert2.prefix_texo = 'Detect Area'
 
             #se há movimento desenhe retangulos e ajuste o FPS na Tela
             if tot_mov > 0:
@@ -77,21 +71,9 @@ if __name__ == '__main__':
                 for entidade in lista:
                     entidade.draw_rectangle(image)
 
-                    if entidade.x > pos[0] + size[0] and entidade.x > pos[0]:
-                        alerta_area1 = 1000000
-
-            if alerta_area1 != 0:
-                cor_selecionada = cor_alerta
-                alerta_area1 -= 1
-            else:
-                cor_selecionada = cor_normal
-
-            cv2.putText(image, "Detect Area", (pos[0], pos[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.50, (255, 0, 0), 1)
-            cv2.rectangle(image, pos, (pos[0] + size[0], pos[1]+size[1]), cor_selecionada, 3)
-
-            cv2.putText(image, "Detect Area", (pos2[0], pos2[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.50, (255, 0, 0), 1)
-            cv2.rectangle(image, pos2, (pos2[0] + size2[0], pos2[1]+size2[1]), cor_selecionada, 3)
-
+            alert1.draw_rectangle(image)
+            alert2.draw_rectangle(image)
+            
             cv2.imshow('pressione q para sair', image)
 
             #if move.differenceimage is not None:
