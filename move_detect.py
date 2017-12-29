@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
             lista_crua = move.detect(time.time())
 
-            lista = classificador(lista_crua)
+            lista = classificador(lista_crua, 0, canvas_img.width, canvas_img.height)
 
             tot_mov = len(lista)
 
@@ -74,11 +74,11 @@ if __name__ == '__main__':
                 for entidade in lista:
                     entidade.draw_rectangle(image)
 
-                    if alert1.is_collide(entidade) is True:
+                    if alert1.is_collide(entidade, 0, canvas_img.width, canvas_img.height) is True:
                         alert1.cor_retangulo = (0, 0, 255)
                         break
 
-                    if alert2.is_collide(entidade) is True:
+                    if alert2.is_collide(entidade, 0, canvas_img.width, canvas_img.height) is True:
                         alert2.cor_retangulo = (0, 0, 255)
                         break
 

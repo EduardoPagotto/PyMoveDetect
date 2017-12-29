@@ -61,16 +61,41 @@ class Entidade(object):
         #distancia entre 2 pontos de centro de retangulo
         return (np.dot(self.center - outro.center, self.center - outro.center))**.5
 
-    def is_collide(self, outro):
-        x_1 = self.retangulo[0][0]
-        y_1 = self.retangulo[0][1]
-        width_1 = self.retangulo[1][0]
-        height_1 = self.retangulo[1][1]
+    def is_collide(self, outro, distance_far, limit_w, limit_h):
+        '''
+        verifica se colide com distancia 
+        '''
+        x_1 = self.retangulo[0][0] - distance_far
+        if x_1 < 0:
+            x_1 = 0
 
-        x_2 = outro.retangulo[0][0]
-        y_2 = outro.retangulo[0][1]
-        width_2 = outro.retangulo[1][0]
-        height_2 = outro.retangulo[1][1]
+        y_1 = self.retangulo[0][1] - distance_far
+        if y_1 < 0:
+            y_1 = 0
+
+        width_1 = self.retangulo[1][0] + distance_far
+        if width_1 > limit_w:
+            width_1 = limit_w
+
+        height_1 = self.retangulo[1][1] + distance_far
+        if height_1 > limit_h:
+            height_1 = limit_h
+
+        x_2 = outro.retangulo[0][0] - distance_far
+        if x_2 < 0:
+            x_2 = 0
+
+        y_2 = outro.retangulo[0][1] - distance_far
+        if y_2 < 0:
+            y_2 = 0
+
+        width_2 = outro.retangulo[1][0] + distance_far
+        if width_2 > limit_w:
+            width_2 = limit_w
+
+        height_2 = outro.retangulo[1][1] + distance_far
+        if height_2 > limit_h:
+            height_2 = limit_h
 
         return not (x_1 > (x_2 + width_2) or (x_1 + width_1) < x_2 or y_1 > (y_2 + height_2) or (y_1 + height_1) < y_2)
 
@@ -213,7 +238,7 @@ def aglutinador(lista):
 
     return e
 
-def classificador(lista):
+def classificador(lista, distance_far, limit_w, limit_h):
 
     lista_final = []
 
@@ -235,7 +260,7 @@ def classificador(lista):
                 if e2.dead is True:
                     continue
 
-                if e1.is_collide(e2) is True:
+                if e1.is_collide(e2, distance_far, limit_w, limit_h) is True:
                     lista_aglutinada.append(e2)
 
             if len(lista_aglutinada) > 0:
