@@ -14,7 +14,7 @@ import time
 import cv2
 
 from CanvasImg import CanvasImg
-from MoveDetect import MoveDetect, Entidade
+from MoveDetect import MoveDetect, Entidade, classificador
 from VideoStreamDev import VideoStreamDev
 from ConfigFile import ConfigFile
 
@@ -49,7 +49,10 @@ if __name__ == '__main__':
 
         while True:
 
-            lista = move.detect(time.time())
+            lista_crua = move.detect(time.time())
+
+            lista = classificador(lista_crua)
+
             tot_mov = len(lista)
 
             image = move.image
