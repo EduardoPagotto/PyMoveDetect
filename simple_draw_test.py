@@ -83,8 +83,8 @@ if __name__ == '__main__':
 
     lista_geral = classificador(lista_inicial)
 
-    ef = aglutinador(lista_geral)
-    ef.cor_retangulo = (255, 255, 255)
+    #ef = aglutinador(lista_geral)
+    #ef.cor_retangulo = (255, 255, 255)
     #d = e2.distancia(e3)
 
     # val = e2.is_colide(e3)
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     for e in lista_geral:
         e.draw_rectangle(img)
     
-    ef.draw_rectangle(img)
+    #ef.draw_rectangle(img)
 
     while(1):
         cv2.imshow('image',img)

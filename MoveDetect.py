@@ -45,6 +45,7 @@ class Entidade(object):
 
         self.cor_retangulo = (0, 255, 0)
         self.trick_retangulo = 2
+        self.dead = False
 
     def draw_rectangle(self, image):
         '''
@@ -98,8 +99,6 @@ class MoveDetect(object):
         self.thresholdimage = None
         self._gray_buffer = None
         self._last_frame_count = 0
-
-        self.dead = False
 
     def start_frame(self):
         '''
