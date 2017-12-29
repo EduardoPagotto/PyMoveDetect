@@ -99,6 +99,8 @@ class MoveDetect(object):
         self._gray_buffer = None
         self._last_frame_count = 0
 
+        self.dead = False
+
     def start_frame(self):
         '''
         Primeiro frame a ser considerado
@@ -199,6 +201,8 @@ def aglutinador(lista):
         if y1 > y1_final:
             y1_final = y1
 
+        r.dead = True
+
     e = Entidade(0, x_final, y_final, x1_final - x_final, y1_final - y_final, lista[0].time)
     e.identificador = lista[0].identificador
     e.prefix_texo = lista[0].prefix_texo
@@ -217,24 +221,31 @@ def classificador(lista):
     tot = len(lista)
 
     for indice in range(0, tot):
-        
+
+        repete = True
         e1 = lista[indice]
-        
-        for sub in range(indice, tot):
+        while repete:
+            lista_aglutinada = []
 
-            if indice == sub:
-                continue
+            for sub in range(indice, tot):
 
-            e2 = lista[sub]
+                if indice == sub:
+                    continue
 
-            if e1.is_collide(e2) is True:
-                 en = aglutinador([e1, e2])
-                 e1 = en
+                e2 = lista[sub]
+                if e2.dead is True:
+                    continue
+
+                if e1.is_collide(e2) is True:
+                    lista_aglutinada.append(e2)
+
+            if len(lista_aglutinada) > 0:
+                lista_aglutinada.append(e1)
+                e1 = aglutinador(lista_aglutinada)
             else:
-                lista_final.append(e2)
+                repete = False
 
-        lista_final.append(e1)
-                    
+        if e1.dead is False:
+            lista_final.append(e1)
+
     return lista_final
-
-         

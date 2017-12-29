@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from MoveDetect import Entidade, aglutinador
+from MoveDetect import Entidade, aglutinador, classificador
 
 drawing = False # true if mouse is pressed
 mode = True # if True, draw rectangle. Press 'm' to toggle to curve
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     img = np.zeros((512,512,3), np.uint8)
     cv2.namedWindow('image')
 
-    lista_geral = [ Entidade('Teste1', 10, 10, 20, 20, None), 
+    lista_inicial = [ Entidade('Teste1', 10, 10, 20, 20, None), 
                     Entidade('Teste2', 20, 20, 50, 50, None),
                     Entidade('Teste3', 10, 100, 10, 10, None),
                     Entidade('Teste4', 20, 400, 10, 10, None),
@@ -80,6 +80,8 @@ if __name__ == '__main__':
                     Entidade('Teste10', 400, 200, 30, 10, None),
                     Entidade('Teste11', 400, 450, 10, 20, None),
                     Entidade('Teste12', 440, 390, 12, 20, None)]
+
+    lista_geral = classificador(lista_inicial)
 
     ef = aglutinador(lista_geral)
     ef.cor_retangulo = (255, 255, 255)
