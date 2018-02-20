@@ -6,7 +6,7 @@
     },
     "img_pat": "image/",
     "video_device__old": 1,
-    "video_device": "/home/pagotto/Projetos/PyMoveDetect/video/VID_20171021_144029337.mp4",
+    "video_device": "/home/locutus/Projetos/PyMoveDetect/video/VID_20171021_144029337.mp4",
     "canvas": {
         "defaults": {
             "width": 800,

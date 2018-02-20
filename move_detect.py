@@ -44,8 +44,22 @@ if __name__ == '__main__':
         logging.info('A inicializar detector de movimento')
         move = MoveDetect(stream, canvas_img.width, canvas_img.height, cf.get()['move_entity'])
 
+        #inicializa encode para gravação de video
+        fourcc = cv2.VideoWriter_fourcc('D','I','V','3') # MPEG 4.3
+        #fourcc = cv2.VideoWriter_fourcc('M','P','4','2') # MPEG 4.2
+        #fourcc = cv2.VideoWriter_fourcc('M','J','P','G') # Motion Jpeg
+        #fourcc = cv2.VideoWriter_fourcc('U','2','6','3') # H263
+        #fourcc = cv2.VideoWriter_fourcc('I','2','6','3') # H263I
+        #fourcc = cv2.VideoWriter_fourcc('F','L','V','1') # FLV
+        #fourcc = cv2.VideoWriter_fourcc('P','I','M','1') # MPEG-1
+        #fourcc = cv2.VideoWriter_fourcc('D','I','V','X') # MPEG-4 = MPEG-1
+        #fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        out = cv2.VideoWriter('output.avi',fourcc, 20.0, (800,640), True)
+
         logging.info('Captura Primeiro Frame')
         move.start_frame()
+
+        count = stream._frame_count
 
         while True:
 
@@ -84,9 +98,18 @@ if __name__ == '__main__':
 
             alert1.draw_rectangle(image)
             alert2.draw_rectangle(image)
+  
+            novo = stream._frame_count
+            if novo != count:
+                out.write(image)
+                count = novo
+            # else:
+            #     print('pulei')
+            #compactar com:
+            #ffmpeg -i output.avi -b:v 200k -c:v libx264 -vf scale=640:480 -pix_fmt yuv420p -c:a aac -strict experimental -b:a 128k -ac 2 -an -threads 2 -f mp4 output2.mp4
 
             cv2.imshow('pressione q para sair', image)
-
+            
             #if move.differenceimage is not None:
             #    cv2.imshow('differenceimage', move.differenceimage)
 
@@ -110,6 +133,9 @@ if __name__ == '__main__':
     finally:
         stream.stop()
         time.sleep(1)
+
+        out.release()
+
         cv2.destroyAllWindows()
 
     print('FIM')
