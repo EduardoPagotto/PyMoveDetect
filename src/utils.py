@@ -9,62 +9,81 @@ Update on 20171216
 #pylint: disable=C0103
 #pylint: disable=W0703
 
-import json
+#import json
 import logging
+import logging.config
 import os
+
+import subprocess
+
+import yaml
+
+import smtplib
+from email.mime.text import MIMEText
 
 #mypath = os.path.abspath(__file__)
 #baseDir = mypath[0:mypath.rfind("/")+1]
 #baseFileName = mypath[mypath.rfind("/")+1:mypath.rfind(".")]
 #progName = os.path.basename(__file__)
 
-class ConfigFile(object):
+def load_config_app(config_file):
+    with open(config_file) as stream:
+        try:
+            global_config = yaml.load(stream)
+            dados_log = global_config['loggin']
+            logging.config.dictConfig(dados_log)
+            #log = logging.getLogger(__name__)
+            return global_config, logging
+        except yaml.YAMLError as exc:
+            print(exc)
+            quit()
+        except Exception as exp:
+            print(str(exp))
+            quit()
+
+def gera_dados_ip():
     '''
-    Setting de dados
+    Consulta SO para dados de Conexao,
+    retornando texto com rota default e interfaces conectadas
     '''
-    def __init__(self, nome_arquivo):
-        '''
-        Le dados de configuracao e inicializa arquiivos de log
-        nome_arquivo: nome do arquivo totalmente qualificado
-        retorno: dict com dados de configuracao
-        '''
-        self.dados_def = None
-        with open(nome_arquivo, 'r') as configFile:
-            self.dados_def = json.load(configFile)
+    #call subprocess piped
+    p = subprocess.Popen('ip route list', shell=True, stdout=subprocess.PIPE)
+    data = p.communicate()
 
-        if self.dados_def['log']['kind'] == 'verbose':
-            logging.basicConfig(level=logging.DEBUG,
-                                format='%(asctime)s %(levelname)-8s %(funcName)-10s %(message)s',
-                                datefmt='%Y-%m-%d %H:%M:%S')
-        elif self.dados_def['log']['kind'] == 'save_log':
-            logging.basicConfig(level=logging.DEBUG,
-                                format='%(asctime)s %(levelname)-8s %(funcName)-10s %(message)s',
-                                datefmt='%Y-%m-%d %H:%M:%S',
-                                filename=self.dados_def['log']['log_file'],
-                                filemode='w')
-        else:
-            print("Logging Disabled per Variable verbose=False")
-            logging.basicConfig(level=logging.CRITICAL,
-                                format='%(asctime)s %(levelname)-8s %(funcName)-10s %(message)s',
-                                datefmt='%Y-%m-%d %H:%M:%S')
+    #filtra linhas
+    texto = data[0].decode('UTF-8')
+    linhas = texto.split('\n')
 
-        image_path = self.dados_def['img_pat']
-        if not os.path.isdir(image_path):
-            logging.info("Creating Image Storage Folder %s", image_path)
-            os.makedirs(image_path)
+    #retorno inicia vazio
+    retorno_ips = ''
 
-    def get(self):
-        '''
-        retorna dados
-        '''
-        return self.dados_def
+    for linha in linhas:
+        tamanho_linha = len(linha)
+        inicio = linha.find('default ', 0, tamanho_linha)
+        linha = linha.replace('  ', ' ')
+        itens = linha.split(' ')
+        if inicio != -1:
+            #defaul Route
+            retorno_ips += 'Rota {0} {1}\n'.format(itens[4], itens[2])
+            continue
 
-    # def get(self, parametro):
-    #     '''
-    #     retorna dados
-    #     '''
-    #     if parametro in self.dados_def:
-    #         return self.dados_def[parametro]
+        if len(itens) > 8:
+            #dev com IP
+            retorno_ips += 'IP {0} {1}\n'.format(itens[2], itens[8])
 
-    #     logging.error('Parametro: %s nao existe', parametro)
-    #     raise Exception('Paremetro: {0} nao exite'.format(parametro))
+    return retorno_ips
+
+def envia_email(payload, lista_destino, user_data):
+    '''
+    Envia Email ao GMAIL
+    payload : msg a ser enviada
+    lista_destino : lista de destinatatios
+    user_data : tupla com usuario e senha
+    '''
+    smtpserver = smtplib.SMTP('smtp.gmail.com', 587)
+    smtpserver.ehlo()
+    smtpserver.starttls()
+    smtpserver.ehlo()
+    smtpserver.login(user_data[0], user_data[1])
+    smtpserver.sendmail(user_data[0], lista_destino, payload.as_string())
+    smtpserver.quit()

@@ -1,6 +1,23 @@
-{
-    "device":"00000001",
-    "usuario":"AAAAAAa@gmail.com",
-    "senha":"XXXXX",
-    "destino":"BBBBBB@gmail.com"
-}
+loggin:
+  version: 1
+  disable_existing_loggers: False
+  formatters:
+    syslog:
+      format: "%(levelname)s <PID %(process)d:%(processName)s T:%(threadName)s> %(funcName)s %(message)s"
+
+  handlers:
+    sys: #syslog
+      class: logging.handlers.SysLogHandler
+      formatter: syslog
+      address: /dev/log
+
+  root:
+      level: INFO
+      handlers: [sys]
+
+#config de email default
+email_setup:
+  device : "00000001"
+  usuario : "AAAAAAa@gmail.com"
+  senha : "XXXXX"
+  destino : "BBBBBB@gmail.com"

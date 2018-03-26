@@ -1,30 +1,51 @@
-{
-    "debug": true,
-    "log": {
-        "kind": "verbose",
-        "log_file": "log/move.log"
-    },
-    "img_pat": "image/",
-    "video_device__old": 1,
-    "video_device": "/home/locutus/Projetos/PyMoveDetect/video/VID_20171021_144029337.mp4",
-    "canvas": {
-        "defaults": {
-            "width": 800,
-            "height": 640,
-            "hflip": false,
-            "vflip": false,
-            "rotation": 0,
-            "frame_rate": 25,
-            "windows_on": true
-        }
-    },
-    "move_entity": {
-        "bigger": 2,
-        "min_area": 600,
-        "blur_size": 5,
-        "threshold_sensitivity": 25,
-        
-        "movelist_timeout": 0.5,
-        "inout_reverse": false
-    }
-}
+loggin:
+    version: 1
+    disable_existing_loggers: False
+    formatters:
+        simple:
+            format: "%(asctime)s %(levelname)s %(threadName)s %(name)s %(message)s"
+            datefmt: "%Y/%m/%d %H:%M:%S"
+
+    handlers:
+        console:
+            class: logging.StreamHandler
+            level: DEBUG
+            formatter: simple
+            stream: ext://sys.stdout
+
+        access_file_handler:
+            class: logging.handlers.TimedRotatingFileHandler
+            level: DEBUG
+            formatter: simple
+            filename: log/move.log
+            backupCount: 30
+            encoding: utf8
+            when: midnight
+            interval: 1
+            delay: True
+
+    root:
+        level: INFO
+        handlers: [console, access_file_handler]
+move:
+    debug: true
+    img_path: "image/"
+    #video_device": 1,
+    video_device: "video/VID_20171021_144029337.mp4"
+    canvas:
+        defaults:
+            width: 800
+            height: 640
+            hflip: false
+            vflip: false
+            rotation: 0
+            frame_rate: 25
+            windows_on: true
+
+    move_entity:
+        bigger: 2
+        min_area: 600
+        blur_size: 5
+        threshold_sensitivity: 25
+        movelist_timeout: 0.5
+        inout_reverse: false
