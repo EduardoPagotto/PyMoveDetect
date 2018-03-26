@@ -27,6 +27,11 @@ from email.mime.text import MIMEText
 #progName = os.path.basename(__file__)
 
 def load_config_app(config_file):
+    '''
+    Carrega configuração do arquivo YAML
+    config_file: pathfile do arquivo de configuração
+    returno: Tupla (dict,log) dictionary com configuracao e loggin
+    '''
     with open(config_file) as stream:
         try:
             global_config = yaml.load(stream)

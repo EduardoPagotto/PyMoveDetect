@@ -9,14 +9,14 @@ Update on 20171228
 #pylint: disable=C0103
 #pylint: disable=W0703
 
-import logging
+#import logging
 import time
 import cv2
 
-from CanvasImg import CanvasImg
-from MoveDetect import MoveDetect, Entidade, classificador
-from VideoStreamDev import VideoStreamDev
-from ConfigFile import ConfigFile
+from src.utils import load_config_app
+from src.CanvasImg import CanvasImg
+from src.VideoStreamDev import VideoStreamDev
+from src.MoveDetect import MoveDetect, Entidade, classificador
 
 # cores das linhas e textos do opencv
 # cvWhite = (255, 255, 255)
@@ -28,21 +28,21 @@ from ConfigFile import ConfigFile
 if __name__ == '__main__':
 
     #le configuracoes gerais, sai se falha
-    try:
-        cf = ConfigFile('config/config.json')
-    except Exception as exp:
-        print('Erro Critico identificado no loadas de config')
-        quit()
+    config_global, logging = load_config_app('config/config.yaml')
+
+    log = logging.getLogger(__name__)
+
+    cf = config_global['move']
 
     try:
-        canvas_img = CanvasImg(cf.get()['canvas'])
+        canvas_img = CanvasImg(cf['canvas'])
 
-        logging.info("A iniciar Thread Video device....")
-        stream = VideoStreamDev(cf.get()['video_device'], canvas_img.width, canvas_img.height)
+        log.info("A iniciar Thread Video device....")
+        stream = VideoStreamDev(cf['video_device'], canvas_img.width, canvas_img.height)
         stream.start()
 
-        logging.info('A inicializar detector de movimento')
-        move = MoveDetect(stream, canvas_img.width, canvas_img.height, cf.get()['move_entity'])
+        log.info('A inicializar detector de movimento')
+        move = MoveDetect(stream, canvas_img.width, canvas_img.height, cf['move_entity'])
 
         #inicializa encode para gravação de video
         fourcc = cv2.VideoWriter_fourcc('D','I','V','3') # MPEG 4.3
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         #fourcc = cv2.VideoWriter_fourcc(*'XVID')
         out = cv2.VideoWriter('output.avi',fourcc, 20.0, (800,640), True)
 
-        logging.info('Captura Primeiro Frame')
+        log.info('Captura Primeiro Frame')
         move.start_frame()
 
         count = stream._frame_count
@@ -118,16 +118,13 @@ if __name__ == '__main__':
 
             #espera tela de saida para fechar app
             if cv2.waitKey(1) & 0xFF == ord('q'):
-                logging.info("encerrando sistema")
+                log.info("encerrando sistema")
                 break
 
     except KeyboardInterrupt:
-        print("")
-        print("+++++++++++++++++++++++++++++++++++")
-        print("User Pressed Keyboard ctrl-c")
-        # print("%s %s - Exiting" % (progname, ver))
-        print("+++++++++++++++++++++++++++++++++++")
-        print("")
+
+        log.info("User Pressed Keyboard ctrl-c")
+
     except Exception as exp:
         print('Erro:{0}'.format(str(exp)))
     finally:
@@ -138,4 +135,4 @@ if __name__ == '__main__':
 
         cv2.destroyAllWindows()
 
-    print('FIM')
+    log.info('FIM App')

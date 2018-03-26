@@ -10,12 +10,11 @@ Update on 20171228
 #pylint: disable=W0703
 
 import time
-import logging
 import cv2
 
 import numpy as np
 
-from CanvasImg import CanvasImg
+from src.CanvasImg import CanvasImg
 
 class Entidade(object):
     '''

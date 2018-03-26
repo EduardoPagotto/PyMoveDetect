@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Created on 20171012
-Update on 20171217
+Update on 20180326
 @author: Eduardo Pagotto
 '''
 
@@ -14,7 +14,6 @@ import time
 import datetime
 import threading
 
-import logging
 
 class VideoStreamDev(object):
     '''Classe de stream do arquivo/device'''
