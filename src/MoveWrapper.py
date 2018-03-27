@@ -63,14 +63,11 @@ class MoveWrapper(object):
 
         cv2.putText(image, "FPS : " + str(int(self.stream.fps)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
 
-        alerta_area1 = 0
-        alerta_area2 = 0
+        #alert1 = Entidade(str(1), 80, 180, 150, 100, None)
+        #alert1.prefix_texo = 'Detect Area'
 
-        alert1 = Entidade(str(1), 80, 180, 150, 100, None)
-        alert1.prefix_texo = 'Detect Area'
-
-        alert2 = Entidade(str(2), 575, 300, 150, 150, None)
-        alert2.prefix_texo = 'Detect Area'
+        #alert2 = Entidade(str(2), 575, 300, 150, 150, None)
+        #alert2.prefix_texo = 'Detect Area'
 
         #se há movimento desenhe retangulos e ajuste o FPS na Tela
         if tot_mov > 0:
@@ -78,16 +75,16 @@ class MoveWrapper(object):
             for entidade in lista:
                 entidade.draw_rectangle(image)
 
-                if alert1.is_collide(entidade, 0, self.canvas_img.width, self.canvas_img.height) is True:
-                    alert1.cor_retangulo = (0, 0, 255)
-                    break
+                # if alert1.is_collide(entidade, 0, self.canvas_img.width, self.canvas_img.height) is True:
+                #     alert1.cor_retangulo = (0, 0, 255)
+                #     break
 
-                if alert2.is_collide(entidade, 0, self.canvas_img.width, self.canvas_img.height) is True:
-                    alert2.cor_retangulo = (0, 0, 255)
-                    break
+                # if alert2.is_collide(entidade, 0, self.canvas_img.width, self.canvas_img.height) is True:
+                #     alert2.cor_retangulo = (0, 0, 255)
+                #     break
 
-        alert1.draw_rectangle(image)
-        alert2.draw_rectangle(image)
+        #alert1.draw_rectangle(image)
+        #alert2.draw_rectangle(image)
 
         if self.rec is not None:
             self.rec.write_frame(image, self.stream._frame_count)
