@@ -9,6 +9,8 @@ Update on 20171218
 #pylint: disable=C0103
 #pylint: disable=W0703
 
+import logging
+
 class CanvasImg(object):
     '''
     Classe de tratamento de tela para acerto geometrico de linhas e planos
@@ -17,6 +19,8 @@ class CanvasImg(object):
         '''
         Inicializa dados da possivel tela
         '''
+        log = logging.getLogger(__name__)
+
         self.width = config_settings['defaults']['width']
         self.height = config_settings['defaults']['height']
 
@@ -33,6 +37,8 @@ class CanvasImg(object):
         self.y_max = self.width
         self.x_buf = self.width / 10
         self.y_buf = self.height / 10
+
+        log.info('Canvas definido: %d x %d', self.width, self.height)
 
     def set_flipper(self):
         '''

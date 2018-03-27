@@ -9,6 +9,7 @@ Update on 20180326
 #pylint: disable=C0103
 #pylint: disable=W0703
 
+import logging
 import cv2
 import time
 import datetime
@@ -34,10 +35,18 @@ class VideoStreamDev(object):
         (self._grabbed, self._frame) = self._stream.read()
         self.fps = 0
 
+        self.log = logging.getLogger(__name__)
+        if self._ao_vivo is True:
+            self.log.info('Video (%d x %d) definido na WebCam:%d', width, height, device_cam)
+        else:
+            self.log.info('Video (%d x %d) em arquivo: %s', width, height, device_cam)
+
+
     def start(self):
         '''Ativa a Thread'''
         # start the thread to read frames from the video stream
         self._thead.start()
+        self.log.info('Thread de Video Stream em execucao')
         return self
 
     def update(self):
@@ -74,3 +83,4 @@ class VideoStreamDev(object):
         '''Sinaliza parada da thread'''
         # indicate that the thread should be stopped
         self._stopped = True
+        self.log.info('Thread de Video Stream sinalizada a encerrar')

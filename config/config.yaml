@@ -29,8 +29,7 @@ loggin:
         handlers: [console, access_file_handler]
 move:
     debug: true
-    img_path: "image/"
-    #video_device": 1,
+    #video_device": 0, #para webcam 0
     video_device: "video/VID_20171021_144029337.mp4"
     canvas:
         defaults:
@@ -49,3 +48,18 @@ move:
         threshold_sensitivity: 25
         movelist_timeout: 0.5
         inout_reverse: false
+
+# recorder:
+#     output_file: 'saida_video/output.avi'
+#     fps: 20
+#     width: 800
+#     height: 640
+#     codec: DIV3 # MPEG 4.3
+#     #codec: MP42 # MPEG 4.2
+#     #codec: PIM1 # MPEG-1
+#     #codec: DIVX # MPEG-4 = MPEG-1
+#     #codec: MJPG # Motion Jpeg
+#     #codec: U263 # H263
+#     #codec: I263 # H263I
+#     #codec: FLV1 # FLV
+#     #codec: XVID # ??
