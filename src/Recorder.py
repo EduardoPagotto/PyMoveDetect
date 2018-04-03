@@ -28,7 +28,7 @@ class Recorder(object):
         self.codec = codec
         #inicializa encode para gravação de video
         fourcc = cv2.VideoWriter_fourcc(*self.codec)
-        self.out = cv2.VideoWriter(file_name,fourcc, fps, dim, True)
+        self.out = cv2.VideoWriter(file_name, fourcc, fps, dim, True)
 
         self.log = logging.getLogger(__name__)
         self.log.info('Recorder arquivo:%s configurado', file_name)
@@ -61,10 +61,10 @@ def get_recorder(config_global):
     '''
     Identifica se ha gravador pelo dict
     config_global: dictionary com os dados
-    retorn: se ha recorder no arquivo de configuração carregar na memoria 
+    retorn: se ha recorder no arquivo de configuração carregar na memoria
     '''
     if 'recorder' in config_global:
         conf_rec = config_global['recorder']
         return Recorder(conf_rec['output_file'], conf_rec['fps'], (conf_rec['width'], conf_rec['height']), conf_rec['codec'])
-    
+
     return None

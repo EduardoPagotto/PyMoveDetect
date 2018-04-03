@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 '''
 Created on 20171226
-Update on 20171228
+Update on 20180403
 @author: Eduardo Pagotto
 '''
 
 #pylint: disable=C0301
 #pylint: disable=C0103
 #pylint: disable=W0703
+#pylint: disable=W0702
 
 import logging
-
-import time
 import cv2
-
 import numpy as np
-
-from src.CanvasImg import CanvasImg
 from src.Entidade import Entidade
 
 class MoveDetect(object):
@@ -95,14 +91,14 @@ class MoveDetect(object):
             #self.differenceimage = cv2.blur(differenceimage, (self._blur_size, self._blur_size))
 
             # Calcula o threshold da diferenca das imagens baseado na variavel THRESHOLD_SENSITIVITY
-            retval, thresholdimage = cv2.threshold(differenceimage, self._threshold_sensitivity, 255, cv2.THRESH_BINARY)
+            _, thresholdimage = cv2.threshold(differenceimage, self._threshold_sensitivity, 255, cv2.THRESH_BINARY)
 
             thresholdimage = cv2.dilate(thresholdimage, None, iterations=2)
 
             try:
-                thresholdimage, contours, hierarchy = cv2.findContours(thresholdimage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                thresholdimage, contours, _ = cv2.findContours(thresholdimage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             except:
-                contours, hierarchy = cv2.findContours(thresholdimage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                contours, _ = cv2.findContours(thresholdimage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
             #buffer usado apenas para debug
             self.differenceimage = differenceimage
@@ -123,7 +119,7 @@ class MoveDetect(object):
 
         return detected_list
 
-def aglutinador(lista):
+def compositor(lista):
     '''
     converte uma lista de entidades em 1 entidade composta
     '''
@@ -162,8 +158,10 @@ def aglutinador(lista):
 
     return e
 
-def classificador(lista, distance_far, limit_w, limit_h):
-
+def aglutinador(lista, distance_far, limit_w, limit_h):
+    '''
+    Concatena retangulos que colidem em um unico retangulo
+    '''
     lista_final = []
 
     tot = len(lista)
@@ -187,9 +185,10 @@ def classificador(lista, distance_far, limit_w, limit_h):
                 if e1.is_collide(e2, distance_far, limit_w, limit_h) is True:
                     lista_aglutinada.append(e2)
 
-            if len(lista_aglutinada) > 0:
+            #if len(lista_aglutinada) > 0:
+            if lista_aglutinada:
                 lista_aglutinada.append(e1)
-                e1 = aglutinador(lista_aglutinada)
+                e1 = compositor(lista_aglutinada)
             else:
                 repete = False
 

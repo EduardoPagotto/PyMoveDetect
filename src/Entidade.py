@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Created on 20180326
-Update on 20180326
+Update on 20180403
 @author: Eduardo Pagotto
 '''
 
@@ -58,7 +58,7 @@ class Entidade(object):
 
     def is_collide(self, outro, distance_far, limit_w, limit_h):
         '''
-        verifica se colide com distancia 
+        verifica se colide com distancia
         '''
         x_1 = self.retangulo[0][0] - distance_far
         if x_1 < 0:

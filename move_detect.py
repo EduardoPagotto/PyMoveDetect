@@ -8,9 +8,6 @@ Update on 20171228
 #pylint: disable=C0301
 #pylint: disable=C0103
 #pylint: disable=W0703
-
-#import logging
-import time
 import cv2
 
 from src.utils import load_config_app
@@ -27,8 +24,6 @@ from src.MoveWrapper import MoveWrapper
 # cvBlue = (255, 0, 0)
 # cvGreen = (0, 255, 0)
 # cvRed = (0, 0, 255)
-
-
 
 if __name__ == '__main__':
 
@@ -48,7 +43,7 @@ if __name__ == '__main__':
             image = mv.capture()
 
             cv2.imshow('pressione q para sair', image)
-            
+
             #if move.differenceimage is not None:
             #    cv2.imshow('differenceimage', move.differenceimage)
 

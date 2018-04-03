@@ -12,14 +12,10 @@ Update on 20171216
 #import json
 import logging
 import logging.config
-import os
-
 import subprocess
-
-import yaml
-
 import smtplib
 from email.mime.text import MIMEText
+import yaml
 
 #mypath = os.path.abspath(__file__)
 #baseDir = mypath[0:mypath.rfind("/")+1]

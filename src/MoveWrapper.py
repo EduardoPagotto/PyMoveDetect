@@ -9,13 +9,11 @@ Update on 20180326
 #pylint: disable=C0103
 #pylint: disable=W0703
 
-import cv2
-
 import time
-
+import cv2
 from src.CanvasImg import CanvasImg
 from src.VideoStreamDev import VideoStreamDev
-from src.MoveDetect import MoveDetect, Entidade, classificador
+from src.MoveDetect import MoveDetect, Entidade, aglutinador
 from src.Recorder import Recorder, get_recorder
 
 class MoveWrapper(object):
@@ -24,7 +22,7 @@ class MoveWrapper(object):
     '''
     def __init__(self, config_global):
         '''
-        Inicializa todos os objetos 
+        Inicializa todos os objetos
         '''
         cf = config_global['move']
         self.canvas_img = CanvasImg(cf['canvas'])
@@ -55,7 +53,7 @@ class MoveWrapper(object):
         '''
         lista_crua = self.move.detect(time.time())
 
-        lista = classificador(lista_crua, 0, self.canvas_img.width, self.canvas_img.height)
+        lista = aglutinador(lista_crua, 0, self.canvas_img.width, self.canvas_img.height)
 
         tot_mov = len(lista)
 

@@ -9,12 +9,11 @@ Update on 20180326
 #pylint: disable=C0103
 #pylint: disable=W0703
 
-import logging
-import cv2
 import time
+import logging
 import datetime
 import threading
-
+import cv2
 
 class VideoStreamDev(object):
     '''Classe de stream do arquivo/device'''
