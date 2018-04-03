@@ -53,6 +53,10 @@ class MoveWrapper(object):
         '''
         lista_crua = self.move.detect(time.time())
 
+        #frame anterior e atual e o mesmo
+        if lista_crua is None:
+            return None
+
         lista = aglutinador(lista_crua, 0, self.canvas_img.width, self.canvas_img.height)
 
         tot_mov = len(lista)

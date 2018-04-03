@@ -8,6 +8,7 @@ Update on 20171228
 #pylint: disable=C0301
 #pylint: disable=C0103
 #pylint: disable=W0703
+import time
 import cv2
 
 from src.utils import load_config_app
@@ -41,8 +42,11 @@ if __name__ == '__main__':
         while True:
 
             image = mv.capture()
-
-            cv2.imshow('pressione q para sair', image)
+            if image is not None:
+                cv2.imshow('pressione q para sair', image)
+            # else:
+            #     time.sleep(0.1)
+            #     log.info('vazio')
 
             #if move.differenceimage is not None:
             #    cv2.imshow('differenceimage', move.differenceimage)

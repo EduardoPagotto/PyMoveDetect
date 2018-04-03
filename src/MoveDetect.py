@@ -66,14 +66,14 @@ class MoveDetect(object):
         move_time: time que a ocorrencia do movimento foi registrada(o mesmo e usado em todo o bloco)
         '''
 
-        #lista de retorno vazia
-        detected_list = []
-
         #le frame atual
         last, img = self._stream.read()
 
         #se frame atual e o mesmo que o anterior ignora deteccao(ECONOMIA DE PROCESSADOR!!!!)
         if last > self._last_frame_count:
+
+            #lista de retorno vazia
+            detected_list = []
 
             #se novo frame atualiza dados e processar diferencas
             self._last_frame_count = last
@@ -117,7 +117,9 @@ class MoveDetect(object):
                         e = Entidade(str(0), x, y, w, h, move_time)
                         detected_list.append(e)
 
-        return detected_list
+            return detected_list
+
+        return None
 
 def compositor(lista):
     '''
