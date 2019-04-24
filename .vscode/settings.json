@@ -3,5 +3,7 @@
     "editor.minimap.enabled": false,
     "python.linting.pylintArgs": [
         "--extension-pkg-whitelist=cv2"
-    ]
+    ],
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true
 }

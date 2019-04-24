@@ -29,7 +29,7 @@ loggin:
         handlers: [console, access_file_handler]
 move:
     debug: true
-    video_device: 1 #para webcam 0
+    video_device: 0 #para webcam 0
     #video_device: "video/VID_20171021_144029337.mp4"
     canvas:
         defaults:
