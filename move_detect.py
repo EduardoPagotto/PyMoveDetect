@@ -38,12 +38,27 @@ if __name__ == '__main__':
     mv.start()
 
     try:
-
+        contador = 0
         while True:
 
             image = mv.capture()
             if image is not None:
                 cv2.imshow('pressione q para sair', image)
+
+                #cv2.imwrite('img_{0}.jpg'.format(contador), image)
+                #contador +=1
+
+                # (flag, encodedImage) = cv2.imencode(".jpg", image)
+
+                # if not flag:
+                #     continue
+
+                #yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage) + b'\r\n')
+                #raw = (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage) + b'\r\n')
+
+                # with open("img_{0}.jpg".format(contador), 'w') as f:
+                #     f.write(encodedImage)
+
             # else:
             #     time.sleep(0.1)
             #     log.info('vazio')

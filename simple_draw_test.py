@@ -95,8 +95,8 @@ if __name__ == '__main__':
     #e1.size_texto = 0.5
     #e1.trick_retangulo = 1
 
-    for e in lista_geral:
-        e.draw_rectangle(img)
+    # for e in lista_geral:
+    #     e.draw_rectangle(img)
     
     #ef.draw_rectangle(img)
 

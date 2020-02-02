@@ -29,7 +29,7 @@
             "host": "localhost"
         },
         {
-            "name": "Python: Terminal (integrated)",
+            "name": "Python: Terminal ZZZ(integrated)",
             "type": "python",
             "request": "launch",
             "stopOnEntry": true,
@@ -37,7 +37,7 @@
             "program": "${file}",
             "cwd": "",
             "console": "integratedTerminal",
-            "env": {},
+            "env": {"OPENCV_CAMERA_SOURCE":0},
             "envFile": "${workspaceFolder}/.env",
             "debugOptions": []
         },

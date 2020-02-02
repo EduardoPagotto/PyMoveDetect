@@ -38,7 +38,7 @@ move:
             hflip: false
             vflip: false
             rotation: 0
-            frame_rate: 25
+            frame_rate: 10
             windows_on: true
 
     move_entity:

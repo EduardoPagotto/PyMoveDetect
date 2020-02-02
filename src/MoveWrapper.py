@@ -16,6 +16,21 @@ from src.VideoStreamDev import VideoStreamDev
 from src.MoveDetect import MoveDetect, Entidade, aglutinador
 from src.Recorder import Recorder, get_recorder
 
+import subprocess
+
+import datetime as dt 
+
+def execute_comando(comando):
+    separado = comando.split(' ')
+    proc = subprocess.Popen(separado,
+                            #shell=True,
+                            #preexec_fn=os.setsid,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
+    proc.wait()
+    #logging.debug('Comando: %s status: %d', comando, proc.returncode)
+    return proc.returncode
+
 class MoveWrapper(object):
     '''
     Classe de regra de negocio
@@ -29,6 +44,9 @@ class MoveWrapper(object):
         self.stream = VideoStreamDev(cf['video_device'], self.canvas_img.width, self.canvas_img.height)
         self.move = MoveDetect(self.stream, self.canvas_img.width, self.canvas_img.height, cf['move_entity'])
         self.rec = get_recorder(config_global)
+
+        self.anterior = dt.datetime.now()
+        self.contador = 1
 
     def start(self):
         '''
@@ -74,8 +92,8 @@ class MoveWrapper(object):
         #se há movimento desenhe retangulos e ajuste o FPS na Tela
         if tot_mov > 0:
             cv2.putText(image, "Entidades : " + str(int(tot_mov)), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
-            for entidade in lista:
-                entidade.draw_rectangle(image)
+            # for entidade in lista:
+            #     entidade.draw_rectangle(image)
 
                 # if alert1.is_collide(entidade, 0, self.canvas_img.width, self.canvas_img.height) is True:
                 #     alert1.cor_retangulo = (0, 0, 255)
@@ -84,6 +102,23 @@ class MoveWrapper(object):
                 # if alert2.is_collide(entidade, 0, self.canvas_img.width, self.canvas_img.height) is True:
                 #     alert2.cor_retangulo = (0, 0, 255)
                 #     break
+
+            atual = dt.datetime.now()
+            delta = atual - self.anterior
+            if delta.total_seconds() >= 3:
+                self.anterior = atual
+
+                cv2.imwrite('{0}.jpg'.format(self.contador), image)
+                print('imagem ' + str(self.contador))
+
+                ip_data = '54.210.79.146'
+                comando1 = 'scp -i remota1.pem {0}.jpg  ubuntu@{1}:~/flask-video-streaming/{0}.jpg'.format(self.contador, ip_data)
+                execute_comando(comando1)
+
+                self.contador += 1
+                if self.contador >= 4:
+                    self.contador = 1
+
 
         #alert1.draw_rectangle(image)
         #alert2.draw_rectangle(image)
