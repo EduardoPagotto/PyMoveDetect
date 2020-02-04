@@ -46,7 +46,7 @@ class MoveWrapper(object):
         self.rec = get_recorder(config_global)
 
         self.anterior = dt.datetime.now()
-        self.contador = 1
+        self.contador = 0
 
     def start(self):
         '''
@@ -81,9 +81,10 @@ class MoveWrapper(object):
 
         image = self.move.image
 
-        cv2.putText(image, "FPS : " + str(int(self.stream.fps)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
+        cv2.putText(image, "FPS:" + str(int(self.stream.fps)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
+        cv2.putText(image, "Date:" + dt.datetime.now().isoformat()[:-7], (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
 
-        #alert1 = Entidade(str(1), 80, 180, 150, 100, None)
+        # alert1 = Entidade(str(1), 80, 180, 150, 100, None)
         #alert1.prefix_texo = 'Detect Area'
 
         #alert2 = Entidade(str(2), 575, 300, 150, 150, None)
@@ -91,7 +92,7 @@ class MoveWrapper(object):
 
         #se há movimento desenhe retangulos e ajuste o FPS na Tela
         if tot_mov > 0:
-            cv2.putText(image, "Entidades : " + str(int(tot_mov)), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+            cv2.putText(image, "Mov:" + str(int(tot_mov)), (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
             # for entidade in lista:
             #     entidade.draw_rectangle(image)
 
@@ -111,13 +112,13 @@ class MoveWrapper(object):
                 cv2.imwrite('{0}.jpg'.format(self.contador), image)
                 print('imagem ' + str(self.contador))
 
-                ip_data = '54.210.79.146'
-                comando1 = 'scp -i remota1.pem {0}.jpg  ubuntu@{1}:~/flask-video-streaming/{0}.jpg'.format(self.contador, ip_data)
+                ip_data = '18.212.73.83'
+                comando1 = 'scp -i remota1.pem {0}.jpg ubuntu@{1}:~/FlaskStreaming/imgs/{0}.jpg'.format(self.contador, ip_data)
                 execute_comando(comando1)
 
                 self.contador += 1
-                if self.contador >= 4:
-                    self.contador = 1
+                if self.contador >= 10:
+                    self.contador = 0
 
 
         #alert1.draw_rectangle(image)
