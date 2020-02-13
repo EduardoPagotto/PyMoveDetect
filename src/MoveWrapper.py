@@ -9,6 +9,10 @@ Update on 20180326
 #pylint: disable=C0103
 #pylint: disable=W0703
 
+import json
+import os
+import requests
+
 import time
 import cv2
 from src.CanvasImg import CanvasImg
@@ -116,6 +120,14 @@ class MoveWrapper(object):
                 comando1 = 'scp -i remota1.pem {0}.jpg ubuntu@{1}:~/FlaskStreaming/imgs/{0}.jpg'.format(self.contador, ip_data)
                 execute_comando(comando1)
 
+                # info = {}
+                # info['name'] = '{0}.jpg'.format(self.contador)
+                # file = open('{0}.jpg'.format(self.contador), mode='rb')
+
+                # result = self.postRestApiDic(info,'newzzxxccA1',file)
+                # if result[0] is False:
+                #     print('Erro Envio {0} para {1}'.format(str(info['name']), ip_data))
+
                 self.contador += 1
                 if self.contador >= 10:
                     self.contador = 0
@@ -128,3 +140,42 @@ class MoveWrapper(object):
             self.rec.write_frame(image, self.stream._frame_count)
 
         return image
+
+
+    def postRestApiDic(self, info, methodo, fileHandle):
+        """[Executa um metodo POST (MultiPart) enviando um dictionary e um arquivo recebendo ok]
+        Arguments:
+            info {[dictionary]} -- [dados a enviar]
+            methodo {[string]} -- [metodo do POST]
+            fileHandle {[type]} -- [handle de arquivo se existir ou None]
+        Returns:
+            [type] -- [description]
+        """
+
+        msg_erro = ''
+        url_methodo = self.url + '/' + methodo
+
+        try:
+            files = {}
+            files['json'] = (None, json.dumps(info), 'application/json')
+            # TODO: testar arquivo!!!
+            if fileHandle is not None:
+                files['file'] = (os.path.basename(info['linha']), fileHandle, 'application/octet-stream')
+
+            response = requests.post(url_methodo, files=files)
+            if response.ok is True:
+                return True, "OK"
+            else:    
+                if response.reason is not None:
+                    tot = len(response.reason)
+                    if tot > 0:
+                        msg_erro = 'Erro web: {0} URL: {1}'.format(str(response.reason), url_methodo)
+                    else:
+                        msg_erro = 'Erro Desconhecido no web URL: {0}'.format(url_methodo)
+                else:
+                    msg_erro = 'Erro Desconhecido no web URL: {0}'.format(url_methodo)
+        
+        except Exception as exp:
+            msg_erro = 'Erro web: {0} URL: {1}'.format(str(exp), url_methodo)
+
+        return False, msg_erro
