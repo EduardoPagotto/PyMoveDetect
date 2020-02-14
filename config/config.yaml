@@ -33,8 +33,8 @@ move:
     #video_device: "video/VID_20171021_144029337.mp4"
     canvas:
         defaults:
-            width: 640
-            height: 480
+            width: 320 #640
+            height: 240 #480
             hflip: false
             vflip: false
             rotation: 0

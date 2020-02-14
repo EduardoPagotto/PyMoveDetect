@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Created on 20180326
-Update on 20180326
+Update on 20200214
 @author: Eduardo Pagotto
 '''
 
@@ -52,6 +52,10 @@ class MoveWrapper(object):
         self.anterior = dt.datetime.now()
         self.contador = 0
 
+        self.lastFrameMove = 0
+        self.lastTotMove = 0
+        self.maximg = 50
+
     def start(self):
         '''
         Dispara processor de stream e deteccao
@@ -95,8 +99,8 @@ class MoveWrapper(object):
         #alert2.prefix_texo = 'Detect Area'
 
         #se há movimento desenhe retangulos e ajuste o FPS na Tela
-        if tot_mov > 0:
-            cv2.putText(image, "Mov:" + str(int(tot_mov)), (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+        if tot_mov > 0 or self.lastFrameMove > 0:
+
             # for entidade in lista:
             #     entidade.draw_rectangle(image)
 
@@ -108,30 +112,47 @@ class MoveWrapper(object):
                 #     alert2.cor_retangulo = (0, 0, 255)
                 #     break
 
+            # if tot_mov != 0:
+            #     self.lastTotMov = tot_mov
+            # else:
+            #     tot_mov = self.lastTotMov
+
+            cv2.putText(image, "Mov:" + str(int(tot_mov)), (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+
             atual = dt.datetime.now()
             delta = atual - self.anterior
             if delta.total_seconds() >= 3:
                 self.anterior = atual
 
+                if tot_mov != 0:
+                    self.lastFrameMove = 5
+                else:
+                    if self.lastFrameMove != 0:
+                        self.lastFrameMove -= 1
+
                 cv2.imwrite('{0}.jpg'.format(self.contador), image)
                 print('imagem ' + str(self.contador))
 
-                ip_data = '18.212.73.83'
-                comando1 = 'scp -i remota1.pem {0}.jpg ubuntu@{1}:~/FlaskStreaming/imgs/{0}.jpg'.format(self.contador, ip_data)
-                execute_comando(comando1)
+                ## Envio direto AWS
+                # ip_data = '18.212.73.83'
+                # ip_data = '127.0.0.1'
+                # comando1 = 'scp -i remota1.pem {0}.jpg ubuntu@{1}:~/FlaskStreaming/imgs/{0}.jpg'.format(self.contador, ip_data)
+                # execute_comando(comando1)
 
-                # info = {}
-                # info['name'] = '{0}.jpg'.format(self.contador)
-                # file = open('{0}.jpg'.format(self.contador), mode='rb')
+                # Envio RestAPI
+                info = {}
+                url = 'http://127.0.0.1:5000/newzzxxccA1'
+                info['name'] = '{0}.jpg'.format(self.contador)
+                info['tot'] = self.maximg
+                file = open('{0}.jpg'.format(self.contador), mode='rb')
 
-                # result = self.postRestApiDic(info,'newzzxxccA1',file)
-                # if result[0] is False:
-                #     print('Erro Envio {0} para {1}'.format(str(info['name']), ip_data))
+                result = self.postRestApiDic(info, url, file)
+                if result[0] is False:
+                    print('{0} Envio {1}'.format(result[1], str(info['name'])))
 
                 self.contador += 1
-                if self.contador >= 10:
+                if self.contador >= self.maximg:
                     self.contador = 0
-
 
         #alert1.draw_rectangle(image)
         #alert2.draw_rectangle(image)
@@ -142,7 +163,7 @@ class MoveWrapper(object):
         return image
 
 
-    def postRestApiDic(self, info, methodo, fileHandle):
+    def postRestApiDic(self, info, url_methodo, fileHandle):
         """[Executa um metodo POST (MultiPart) enviando um dictionary e um arquivo recebendo ok]
         Arguments:
             info {[dictionary]} -- [dados a enviar]
@@ -153,14 +174,12 @@ class MoveWrapper(object):
         """
 
         msg_erro = ''
-        url_methodo = self.url + '/' + methodo
 
         try:
             files = {}
             files['json'] = (None, json.dumps(info), 'application/json')
-            # TODO: testar arquivo!!!
             if fileHandle is not None:
-                files['file'] = (os.path.basename(info['linha']), fileHandle, 'application/octet-stream')
+                files['file'] = (os.path.basename(info['name']), fileHandle, 'application/octet-stream')
 
             response = requests.post(url_methodo, files=files)
             if response.ok is True:

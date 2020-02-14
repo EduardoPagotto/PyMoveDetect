@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Created on 20171012
-Update on 20171228
+Update on 20200214
 @author: Eduardo Pagotto
 '''
 
@@ -29,7 +29,7 @@ from src.MoveWrapper import MoveWrapper
 if __name__ == '__main__':
 
     #le configuracoes gerais, sai se falha
-    config_global, logging = load_config_app('config/config.yaml')
+    config_global, logging = load_config_app('./config/config.yaml')
 
     log = logging.getLogger(__name__)
     log.info('Detector de movimento à inicializar')
