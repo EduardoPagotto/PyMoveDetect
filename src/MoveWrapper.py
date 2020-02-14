@@ -52,8 +52,15 @@ class MoveWrapper(object):
         self.anterior = dt.datetime.now()
         self.contador = 0
 
+        remoto = config_global['remoto']
+
         self.lastFrameMove = 0
-        self.maximg = 50
+        self.maximg = remoto['maximg']
+        server = remoto['server']
+        self.url_audi = server + '/' + remoto['url_audi']
+        self.url_file = server + '/' + remoto['url_file']
+        self.delay = remoto['delay']
+        self.cache_frame = remoto['cache_frame']      
 
     def start(self):
         '''
@@ -115,24 +122,22 @@ class MoveWrapper(object):
 
             atual = dt.datetime.now()
             delta = atual - self.anterior
-            if delta.total_seconds() >= 3:
+            if delta.total_seconds() >= self.delay:
                 self.anterior = atual
 
                 if tot_mov != 0:
-                    self.lastFrameMove = 5
+                    self.lastFrameMove = self.cache_frame
                 else:
                     if self.lastFrameMove != 0:
                         self.lastFrameMove -= 1
 
 
-                val = self.getRestApiJson('http://127.0.0.1:5000/hasAudienceNow')
+                val = self.getRestApiJson(self.url_audi)
                 if val[0] is True:
 
                     audience = val[1]
                     if 'hasAudience' in audience:
-
                         if audience['hasAudience'] is True:
-
                             cv2.imwrite('{0}.jpg'.format(self.contador), image)
                             print('imagem ' + str(self.contador))
 
@@ -144,12 +149,13 @@ class MoveWrapper(object):
 
                             # Envio RestAPI
                             info = {}
-                            url = 'http://127.0.0.1:5000/newzzxxccA1'
                             info['name'] = '{0}.jpg'.format(self.contador)
                             info['tot'] = self.maximg
+                            info['delay'] = self.delay
+
                             file = open('{0}.jpg'.format(self.contador), mode='rb')
 
-                            result = self.postRestApiDic(info, url, file)
+                            result = self.postRestApiDic(info, self.url_file, file)
                             if result[0] is False:
                                 print('{0} Envio {1}'.format(result[1], str(info['name'])))
 
