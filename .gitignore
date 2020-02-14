@@ -3,3 +3,6 @@ tmp
 log
 *.log
 *.pyc
+
+/log
+/imgs

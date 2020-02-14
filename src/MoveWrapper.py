@@ -62,6 +62,10 @@ class MoveWrapper(object):
         self.delay = remoto['delay']
         self.cache_frame = remoto['cache_frame']      
 
+        self.pathimg = remoto['pathimg']
+        if not os.path.exists(self.pathimg):
+            os.makedirs(self.pathimg)
+
     def start(self):
         '''
         Dispara processor de stream e deteccao
@@ -138,7 +142,7 @@ class MoveWrapper(object):
                     audience = val[1]
                     if 'hasAudience' in audience:
                         if audience['hasAudience'] is True:
-                            cv2.imwrite('{0}.jpg'.format(self.contador), image)
+                            cv2.imwrite(self.pathimg + '/{0}.jpg'.format(self.contador), image)
                             print('imagem ' + str(self.contador))
 
                             ## Envio direto AWS
@@ -153,7 +157,7 @@ class MoveWrapper(object):
                             info['tot'] = self.maximg
                             info['delay'] = self.delay
 
-                            file = open('{0}.jpg'.format(self.contador), mode='rb')
+                            file = open(self.pathimg + '/{0}.jpg'.format(self.contador), mode='rb')
 
                             result = self.postRestApiDic(info, self.url_file, file)
                             if result[0] is False:
