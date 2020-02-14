@@ -53,7 +53,6 @@ class MoveWrapper(object):
         self.contador = 0
 
         self.lastFrameMove = 0
-        self.lastTotMove = 0
         self.maximg = 50
 
     def start(self):
@@ -89,8 +88,8 @@ class MoveWrapper(object):
 
         image = self.move.image
 
-        cv2.putText(image, "FPS:" + str(int(self.stream.fps)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
-        cv2.putText(image, "Date:" + dt.datetime.now().isoformat()[:-7], (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
+        #cv2.putText(image, "FPS:" + str(int(self.stream.fps)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.60, (255, 0, 0), 2)
+        cv2.putText(image, dt.datetime.now().isoformat()[:-7], (0, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.50, (255, 0, 0), 1)
 
         # alert1 = Entidade(str(1), 80, 180, 150, 100, None)
         #alert1.prefix_texo = 'Detect Area'
@@ -112,12 +111,7 @@ class MoveWrapper(object):
                 #     alert2.cor_retangulo = (0, 0, 255)
                 #     break
 
-            # if tot_mov != 0:
-            #     self.lastTotMov = tot_mov
-            # else:
-            #     tot_mov = self.lastTotMov
-
-            cv2.putText(image, "Mov:" + str(int(tot_mov)), (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+            cv2.putText(image, "Mov:" + str(int(tot_mov)), (0, 35), cv2.FONT_HERSHEY_SIMPLEX, 0.50, (0, 0, 255), 1)
 
             atual = dt.datetime.now()
             delta = atual - self.anterior
@@ -130,29 +124,38 @@ class MoveWrapper(object):
                     if self.lastFrameMove != 0:
                         self.lastFrameMove -= 1
 
-                cv2.imwrite('{0}.jpg'.format(self.contador), image)
-                print('imagem ' + str(self.contador))
 
-                ## Envio direto AWS
-                # ip_data = '18.212.73.83'
-                # ip_data = '127.0.0.1'
-                # comando1 = 'scp -i remota1.pem {0}.jpg ubuntu@{1}:~/FlaskStreaming/imgs/{0}.jpg'.format(self.contador, ip_data)
-                # execute_comando(comando1)
+                val = self.getRestApiJson('http://127.0.0.1:5000/hasAudienceNow')
+                if val[0] is True:
 
-                # Envio RestAPI
-                info = {}
-                url = 'http://127.0.0.1:5000/newzzxxccA1'
-                info['name'] = '{0}.jpg'.format(self.contador)
-                info['tot'] = self.maximg
-                file = open('{0}.jpg'.format(self.contador), mode='rb')
+                    audience = val[1]
+                    if 'hasAudience' in audience:
 
-                result = self.postRestApiDic(info, url, file)
-                if result[0] is False:
-                    print('{0} Envio {1}'.format(result[1], str(info['name'])))
+                        if audience['hasAudience'] is True:
 
-                self.contador += 1
-                if self.contador >= self.maximg:
-                    self.contador = 0
+                            cv2.imwrite('{0}.jpg'.format(self.contador), image)
+                            print('imagem ' + str(self.contador))
+
+                            ## Envio direto AWS
+                            # ip_data = '18.212.73.83'
+                            # ip_data = '127.0.0.1'
+                            # comando1 = 'scp -i remota1.pem {0}.jpg ubuntu@{1}:~/FlaskStreaming/imgs/{0}.jpg'.format(self.contador, ip_data)
+                            # execute_comando(comando1)
+
+                            # Envio RestAPI
+                            info = {}
+                            url = 'http://127.0.0.1:5000/newzzxxccA1'
+                            info['name'] = '{0}.jpg'.format(self.contador)
+                            info['tot'] = self.maximg
+                            file = open('{0}.jpg'.format(self.contador), mode='rb')
+
+                            result = self.postRestApiDic(info, url, file)
+                            if result[0] is False:
+                                print('{0} Envio {1}'.format(result[1], str(info['name'])))
+
+                            self.contador += 1
+                            if self.contador >= self.maximg:
+                                self.contador = 0
 
         #alert1.draw_rectangle(image)
         #alert2.draw_rectangle(image)
@@ -194,6 +197,38 @@ class MoveWrapper(object):
                 else:
                     msg_erro = 'Erro Desconhecido no web URL: {0}'.format(url_methodo)
         
+        except Exception as exp:
+            msg_erro = 'Erro web: {0} URL: {1}'.format(str(exp), url_methodo)
+
+        return False, msg_erro
+
+
+
+    def getRestApiJson(self, url_methodo):
+        """[Excuta um metodo GET recebendo un dictionary]
+        Arguments:
+            methodo {[string]} -- [nome do metodo]
+        Returns:
+            [dict] -- [dados do metodo]
+        """
+
+        msg_erro = ''
+        #url_methodo = self.url + '/' + methodo
+
+        try:
+            response = requests.get(url=url_methodo)
+            if response.ok is True:
+                return True, response.json()
+            else:
+                if response.reason is not None:
+                    tot = len(response.reason)
+                    if tot > 0:
+                        msg_erro = 'Erro web: {0} URL: {1}'.format(str(response.reason), url_methodo)
+                    else:
+                        msg_erro = 'Erro Desconhecido no web URL: {0}'.format(url_methodo)
+                else:
+                    msg_erro = 'Erro Desconhecido no web URL: {0}'.format(url_methodo)
+            
         except Exception as exp:
             msg_erro = 'Erro web: {0} URL: {1}'.format(str(exp), url_methodo)
 
