@@ -145,7 +145,10 @@ class MoveWrapper(object):
                     audience = val[1]
                     if 'hasAudience' in audience:
                         if audience['hasAudience'] is True:
-                            cv2.imwrite(self.pathimg + '/{0}.jpg'.format(self.contador), image)
+
+                            nome_arquivo = self.pathimg + '/{0}.jpg'.format(self.contador)
+
+                            cv2.imwrite(nome_arquivo, image)
                             self.log.info('send imagem ' + str(self.contador))
 
                             ## Envio direto AWS
@@ -156,8 +159,9 @@ class MoveWrapper(object):
 
                             # Envio RestAPI
                             info = {}
+                            info['name'] = nome_arquivo
                             info['date'] = dt.datetime.now().strftime("%Y%m%d%H%M%S_%f")
-                            file = open(self.pathimg + '/{0}.jpg'.format(self.contador), mode='rb')
+                            file = open(nome_arquivo, mode='rb')
 
                             result = self.postRestApiDic(info, self.url_file, file)
                             if result[0] is False:
@@ -168,10 +172,10 @@ class MoveWrapper(object):
                                 self.contador = 0
                         else:
                             self.log.info('no audience, sleeping....')
-                            time.sleep(10)
+                            time.sleep(5)
                 else:
                     self.log.error(val[1])
-                    time.sleep(15)
+                    time.sleep(5)
 
         #alert1.draw_rectangle(image)
         #alert2.draw_rectangle(image)
