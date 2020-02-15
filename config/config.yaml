@@ -51,11 +51,12 @@ move:
 
 remoto:
     server: http://127.0.0.1:5000
+    #server: http://18.212.73.83:5000
     url_audi: hasAudienceNow
     url_file: newzzxxccA1
     maximg: 50
-    delay: 3
-    cache_frame: 5
+    delay: 1
+    cache_frame: 10
     pathimg: ./imgs
 
 recorder:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Created on 20180326
-Update on 20200214
+Update on 20200215
 @author: Eduardo Pagotto
 '''
 
@@ -11,9 +11,11 @@ Update on 20200214
 
 import json
 import os
+import time
+import logging
+from datetime import datetime as dt
 import requests
 
-import time
 import cv2
 from src.CanvasImg import CanvasImg
 from src.VideoStreamDev import VideoStreamDev
@@ -24,16 +26,16 @@ import subprocess
 
 import datetime as dt 
 
-def execute_comando(comando):
-    separado = comando.split(' ')
-    proc = subprocess.Popen(separado,
-                            #shell=True,
-                            #preexec_fn=os.setsid,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-    proc.wait()
-    #logging.debug('Comando: %s status: %d', comando, proc.returncode)
-    return proc.returncode
+# def execute_comando(comando):
+#     separado = comando.split(' ')
+#     proc = subprocess.Popen(separado,
+#                             #shell=True,
+#                             #preexec_fn=os.setsid,
+#                             stdout=subprocess.PIPE,
+#                             stderr=subprocess.STDOUT)
+#     proc.wait()
+#     #logging.debug('Comando: %s status: %d', comando, proc.returncode)
+#     return proc.returncode
 
 class MoveWrapper(object):
     '''
@@ -65,6 +67,9 @@ class MoveWrapper(object):
         self.pathimg = remoto['pathimg']
         if not os.path.exists(self.pathimg):
             os.makedirs(self.pathimg)
+
+        self.log = logging.getLogger('MoveWrapper')
+
 
     def start(self):
         '''
@@ -135,15 +140,13 @@ class MoveWrapper(object):
                     if self.lastFrameMove != 0:
                         self.lastFrameMove -= 1
 
-
                 val = self.getRestApiJson(self.url_audi)
                 if val[0] is True:
-
                     audience = val[1]
                     if 'hasAudience' in audience:
                         if audience['hasAudience'] is True:
                             cv2.imwrite(self.pathimg + '/{0}.jpg'.format(self.contador), image)
-                            print('imagem ' + str(self.contador))
+                            self.log.info('send imagem ' + str(self.contador))
 
                             ## Envio direto AWS
                             # ip_data = '18.212.73.83'
@@ -153,19 +156,22 @@ class MoveWrapper(object):
 
                             # Envio RestAPI
                             info = {}
-                            info['name'] = '{0}.jpg'.format(self.contador)
-                            info['tot'] = self.maximg
-                            info['delay'] = self.delay
-
+                            info['date'] = dt.datetime.now().strftime("%Y%m%d%H%M%S_%f")
                             file = open(self.pathimg + '/{0}.jpg'.format(self.contador), mode='rb')
 
                             result = self.postRestApiDic(info, self.url_file, file)
                             if result[0] is False:
-                                print('{0} Envio {1}'.format(result[1], str(info['name'])))
+                                self.log.error('%s Envio %s', result[1], str(info['name']))
 
                             self.contador += 1
                             if self.contador >= self.maximg:
                                 self.contador = 0
+                        else:
+                            self.log.info('no audience, sleeping....')
+                            time.sleep(10)
+                else:
+                    self.log.error(val[1])
+                    time.sleep(15)
 
         #alert1.draw_rectangle(image)
         #alert2.draw_rectangle(image)
@@ -185,9 +191,7 @@ class MoveWrapper(object):
         Returns:
             [type] -- [description]
         """
-
         msg_erro = ''
-
         try:
             files = {}
             files['json'] = (None, json.dumps(info), 'application/json')
@@ -197,7 +201,7 @@ class MoveWrapper(object):
             response = requests.post(url_methodo, files=files)
             if response.ok is True:
                 return True, "OK"
-            else:    
+            else:
                 if response.reason is not None:
                     tot = len(response.reason)
                     if tot > 0:
@@ -206,13 +210,11 @@ class MoveWrapper(object):
                         msg_erro = 'Erro Desconhecido no web URL: {0}'.format(url_methodo)
                 else:
                     msg_erro = 'Erro Desconhecido no web URL: {0}'.format(url_methodo)
-        
+
         except Exception as exp:
             msg_erro = 'Erro web: {0} URL: {1}'.format(str(exp), url_methodo)
 
         return False, msg_erro
-
-
 
     def getRestApiJson(self, url_methodo):
         """[Excuta um metodo GET recebendo un dictionary]
@@ -221,10 +223,7 @@ class MoveWrapper(object):
         Returns:
             [dict] -- [dados do metodo]
         """
-
         msg_erro = ''
-        #url_methodo = self.url + '/' + methodo
-
         try:
             response = requests.get(url=url_methodo)
             if response.ok is True:
@@ -238,7 +237,7 @@ class MoveWrapper(object):
                         msg_erro = 'Erro Desconhecido no web URL: {0}'.format(url_methodo)
                 else:
                     msg_erro = 'Erro Desconhecido no web URL: {0}'.format(url_methodo)
-            
+
         except Exception as exp:
             msg_erro = 'Erro web: {0} URL: {1}'.format(str(exp), url_methodo)
 
